@@ -1,0 +1,5 @@
+[file-logger][10h:23m:41s] [thread: 1415866] [debug   ] --hello!,jack
+[file-logger][10h:23m:41s] [thread: 1415866] [info    ] --hello!,jack
+[file-logger][10h:23m:41s] [thread: 1415866] [error   ] --hello!,jack
+[file-logger][10h:23m:41s] [thread: 1415866] [warning ] --hello!,jack
+[file-logger][10h:23m:41s] [thread: 1415866] [critical] --hello!,jack
