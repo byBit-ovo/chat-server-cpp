@@ -19,6 +19,7 @@ int main()
     logger->error("hello!,{}","jack");
     logger->warn("hello!,{}","jack");
     logger->critical("hello!,{}","jack");
+    logger->debug("hello");
     std::cout<<"Log over!"<<std::endl;
     
     return 0;

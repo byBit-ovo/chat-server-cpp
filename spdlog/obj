@@ -1,0 +1,300 @@
+
+sync:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+0000000000008000 <_init>:
+    8000:	f3 0f 1e fa          	endbr64
+    8004:	48 83 ec 08          	sub    $0x8,%rsp
+    8008:	48 8b 05 d9 1f 0a 00 	mov    0xa1fd9(%rip),%rax        # a9fe8 <__gmon_start__@Base>
+    800f:	48 85 c0             	test   %rax,%rax
+    8012:	74 02                	je     8016 <_init+0x16>
+    8014:	ff d0                	call   *%rax
+    8016:	48 83 c4 08          	add    $0x8,%rsp
+    801a:	c3                   	ret
+
+Disassembly of section .plt:
+
+0000000000008020 <.plt>:
+    8020:	ff 35 72 1c 0a 00    	push   0xa1c72(%rip)        # a9c98 <_GLOBAL_OFFSET_TABLE_+0x8>
+    8026:	ff 25 74 1c 0a 00    	jmp    *0xa1c74(%rip)        # a9ca0 <_GLOBAL_OFFSET_TABLE_+0x10>
+    802c:	0f 1f 40 00          	nopl   0x0(%rax)
+    8030:	f3 0f 1e fa          	endbr64
+    8034:	68 00 00 00 00       	push   $0x0
+    8039:	e9 e2 ff ff ff       	jmp    8020 <_init+0x20>
+    803e:	66 90                	xchg   %ax,%ax
+    8040:	f3 0f 1e fa          	endbr64
+    8044:	68 01 00 00 00       	push   $0x1
+    8049:	e9 d2 ff ff ff       	jmp    8020 <_init+0x20>
+    804e:	66 90                	xchg   %ax,%ax
+    8050:	f3 0f 1e fa          	endbr64
+    8054:	68 02 00 00 00       	push   $0x2
+    8059:	e9 c2 ff ff ff       	jmp    8020 <_init+0x20>
+    805e:	66 90                	xchg   %ax,%ax
+    8060:	f3 0f 1e fa          	endbr64
+    8064:	68 03 00 00 00       	push   $0x3
+    8069:	e9 b2 ff ff ff       	jmp    8020 <_init+0x20>
+    806e:	66 90                	xchg   %ax,%ax
+    8070:	f3 0f 1e fa          	endbr64
+    8074:	68 04 00 00 00       	push   $0x4
+    8079:	e9 a2 ff ff ff       	jmp    8020 <_init+0x20>
+    807e:	66 90                	xchg   %ax,%ax
+    8080:	f3 0f 1e fa          	endbr64
+    8084:	68 05 00 00 00       	push   $0x5
+    8089:	e9 92 ff ff ff       	jmp    8020 <_init+0x20>
+    808e:	66 90                	xchg   %ax,%ax
+    8090:	f3 0f 1e fa          	endbr64
+    8094:	68 06 00 00 00       	push   $0x6
+    8099:	e9 82 ff ff ff       	jmp    8020 <_init+0x20>
+    809e:	66 90                	xchg   %ax,%ax
+    80a0:	f3 0f 1e fa          	endbr64
+    80a4:	68 07 00 00 00       	push   $0x7
+    80a9:	e9 72 ff ff ff       	jmp    8020 <_init+0x20>
+    80ae:	66 90                	xchg   %ax,%ax
+    80b0:	f3 0f 1e fa          	endbr64
+    80b4:	68 08 00 00 00       	push   $0x8
+    80b9:	e9 62 ff ff ff       	jmp    8020 <_init+0x20>
+    80be:	66 90                	xchg   %ax,%ax
+    80c0:	f3 0f 1e fa          	endbr64
+    80c4:	68 09 00 00 00       	push   $0x9
+    80c9:	e9 52 ff ff ff       	jmp    8020 <_init+0x20>
+    80ce:	66 90                	xchg   %ax,%ax
+    80d0:	f3 0f 1e fa          	endbr64
+    80d4:	68 0a 00 00 00       	push   $0xa
+    80d9:	e9 42 ff ff ff       	jmp    8020 <_init+0x20>
+    80de:	66 90                	xchg   %ax,%ax
+    80e0:	f3 0f 1e fa          	endbr64
+    80e4:	68 0b 00 00 00       	push   $0xb
+    80e9:	e9 32 ff ff ff       	jmp    8020 <_init+0x20>
+    80ee:	66 90                	xchg   %ax,%ax
+    80f0:	f3 0f 1e fa          	endbr64
+    80f4:	68 0c 00 00 00       	push   $0xc
+    80f9:	e9 22 ff ff ff       	jmp    8020 <_init+0x20>
+    80fe:	66 90                	xchg   %ax,%ax
+    8100:	f3 0f 1e fa          	endbr64
+    8104:	68 0d 00 00 00       	push   $0xd
+    8109:	e9 12 ff ff ff       	jmp    8020 <_init+0x20>
+    810e:	66 90                	xchg   %ax,%ax
+    8110:	f3 0f 1e fa          	endbr64
+    8114:	68 0e 00 00 00       	push   $0xe
+    8119:	e9 02 ff ff ff       	jmp    8020 <_init+0x20>
+    811e:	66 90                	xchg   %ax,%ax
+    8120:	f3 0f 1e fa          	endbr64
+    8124:	68 0f 00 00 00       	push   $0xf
+    8129:	e9 f2 fe ff ff       	jmp    8020 <_init+0x20>
+    812e:	66 90                	xchg   %ax,%ax
+    8130:	f3 0f 1e fa          	endbr64
+    8134:	68 10 00 00 00       	push   $0x10
+    8139:	e9 e2 fe ff ff       	jmp    8020 <_init+0x20>
+    813e:	66 90                	xchg   %ax,%ax
+    8140:	f3 0f 1e fa          	endbr64
+    8144:	68 11 00 00 00       	push   $0x11
+    8149:	e9 d2 fe ff ff       	jmp    8020 <_init+0x20>
+    814e:	66 90                	xchg   %ax,%ax
+    8150:	f3 0f 1e fa          	endbr64
+    8154:	68 12 00 00 00       	push   $0x12
+    8159:	e9 c2 fe ff ff       	jmp    8020 <_init+0x20>
+    815e:	66 90                	xchg   %ax,%ax
+    8160:	f3 0f 1e fa          	endbr64
+    8164:	68 13 00 00 00       	push   $0x13
+    8169:	e9 b2 fe ff ff       	jmp    8020 <_init+0x20>
+    816e:	66 90                	xchg   %ax,%ax
+    8170:	f3 0f 1e fa          	endbr64
+    8174:	68 14 00 00 00       	push   $0x14
+    8179:	e9 a2 fe ff ff       	jmp    8020 <_init+0x20>
+    817e:	66 90                	xchg   %ax,%ax
+    8180:	f3 0f 1e fa          	endbr64
+    8184:	68 15 00 00 00       	push   $0x15
+    8189:	e9 92 fe ff ff       	jmp    8020 <_init+0x20>
+    818e:	66 90                	xchg   %ax,%ax
+    8190:	f3 0f 1e fa          	endbr64
+    8194:	68 16 00 00 00       	push   $0x16
+    8199:	e9 82 fe ff ff       	jmp    8020 <_init+0x20>
+    819e:	66 90                	xchg   %ax,%ax
+    81a0:	f3 0f 1e fa          	endbr64
+    81a4:	68 17 00 00 00       	push   $0x17
+    81a9:	e9 72 fe ff ff       	jmp    8020 <_init+0x20>
+    81ae:	66 90                	xchg   %ax,%ax
+    81b0:	f3 0f 1e fa          	endbr64
+    81b4:	68 18 00 00 00       	push   $0x18
+    81b9:	e9 62 fe ff ff       	jmp    8020 <_init+0x20>
+    81be:	66 90                	xchg   %ax,%ax
+    81c0:	f3 0f 1e fa          	endbr64
+    81c4:	68 19 00 00 00       	push   $0x19
+    81c9:	e9 52 fe ff ff       	jmp    8020 <_init+0x20>
+    81ce:	66 90                	xchg   %ax,%ax
+    81d0:	f3 0f 1e fa          	endbr64
+    81d4:	68 1a 00 00 00       	push   $0x1a
+    81d9:	e9 42 fe ff ff       	jmp    8020 <_init+0x20>
+    81de:	66 90                	xchg   %ax,%ax
+    81e0:	f3 0f 1e fa          	endbr64
+    81e4:	68 1b 00 00 00       	push   $0x1b
+    81e9:	e9 32 fe ff ff       	jmp    8020 <_init+0x20>
+    81ee:	66 90                	xchg   %ax,%ax
+    81f0:	f3 0f 1e fa          	endbr64
+    81f4:	68 1c 00 00 00       	push   $0x1c
+    81f9:	e9 22 fe ff ff       	jmp    8020 <_init+0x20>
+    81fe:	66 90                	xchg   %ax,%ax
+    8200:	f3 0f 1e fa          	endbr64
+    8204:	68 1d 00 00 00       	push   $0x1d
+    8209:	e9 12 fe ff ff       	jmp    8020 <_init+0x20>
+    820e:	66 90                	xchg   %ax,%ax
+    8210:	f3 0f 1e fa          	endbr64
+    8214:	68 1e 00 00 00       	push   $0x1e
+    8219:	e9 02 fe ff ff       	jmp    8020 <_init+0x20>
+    821e:	66 90                	xchg   %ax,%ax
+    8220:	f3 0f 1e fa          	endbr64
+    8224:	68 1f 00 00 00       	push   $0x1f
+    8229:	e9 f2 fd ff ff       	jmp    8020 <_init+0x20>
+    822e:	66 90                	xchg   %ax,%ax
+    8230:	f3 0f 1e fa          	endbr64
+    8234:	68 20 00 00 00       	push   $0x20
+    8239:	e9 e2 fd ff ff       	jmp    8020 <_init+0x20>
+    823e:	66 90                	xchg   %ax,%ax
+    8240:	f3 0f 1e fa          	endbr64
+    8244:	68 21 00 00 00       	push   $0x21
+    8249:	e9 d2 fd ff ff       	jmp    8020 <_init+0x20>
+    824e:	66 90                	xchg   %ax,%ax
+    8250:	f3 0f 1e fa          	endbr64
+    8254:	68 22 00 00 00       	push   $0x22
+    8259:	e9 c2 fd ff ff       	jmp    8020 <_init+0x20>
+    825e:	66 90                	xchg   %ax,%ax
+    8260:	f3 0f 1e fa          	endbr64
+    8264:	68 23 00 00 00       	push   $0x23
+    8269:	e9 b2 fd ff ff       	jmp    8020 <_init+0x20>
+    826e:	66 90                	xchg   %ax,%ax
+    8270:	f3 0f 1e fa          	endbr64
+    8274:	68 24 00 00 00       	push   $0x24
+    8279:	e9 a2 fd ff ff       	jmp    8020 <_init+0x20>
+    827e:	66 90                	xchg   %ax,%ax
+    8280:	f3 0f 1e fa          	endbr64
+    8284:	68 25 00 00 00       	push   $0x25
+    8289:	e9 92 fd ff ff       	jmp    8020 <_init+0x20>
+    828e:	66 90                	xchg   %ax,%ax
+    8290:	f3 0f 1e fa          	endbr64
+    8294:	68 26 00 00 00       	push   $0x26
+    8299:	e9 82 fd ff ff       	jmp    8020 <_init+0x20>
+    829e:	66 90                	xchg   %ax,%ax
+    82a0:	f3 0f 1e fa          	endbr64
+    82a4:	68 27 00 00 00       	push   $0x27
+    82a9:	e9 72 fd ff ff       	jmp    8020 <_init+0x20>
+    82ae:	66 90                	xchg   %ax,%ax
+    82b0:	f3 0f 1e fa          	endbr64
+    82b4:	68 28 00 00 00       	push   $0x28
+    82b9:	e9 62 fd ff ff       	jmp    8020 <_init+0x20>
+    82be:	66 90                	xchg   %ax,%ax
+    82c0:	f3 0f 1e fa          	endbr64
+    82c4:	68 29 00 00 00       	push   $0x29
+    82c9:	e9 52 fd ff ff       	jmp    8020 <_init+0x20>
+    82ce:	66 90                	xchg   %ax,%ax
+    82d0:	f3 0f 1e fa          	endbr64
+    82d4:	68 2a 00 00 00       	push   $0x2a
+    82d9:	e9 42 fd ff ff       	jmp    8020 <_init+0x20>
+    82de:	66 90                	xchg   %ax,%ax
+    82e0:	f3 0f 1e fa          	endbr64
+    82e4:	68 2b 00 00 00       	push   $0x2b
+    82e9:	e9 32 fd ff ff       	jmp    8020 <_init+0x20>
+    82ee:	66 90                	xchg   %ax,%ax
+    82f0:	f3 0f 1e fa          	endbr64
+    82f4:	68 2c 00 00 00       	push   $0x2c
+    82f9:	e9 22 fd ff ff       	jmp    8020 <_init+0x20>
+    82fe:	66 90                	xchg   %ax,%ax
+    8300:	f3 0f 1e fa          	endbr64
+    8304:	68 2d 00 00 00       	push   $0x2d
+    8309:	e9 12 fd ff ff       	jmp    8020 <_init+0x20>
+    830e:	66 90                	xchg   %ax,%ax
+    8310:	f3 0f 1e fa          	endbr64
+    8314:	68 2e 00 00 00       	push   $0x2e
+    8319:	e9 02 fd ff ff       	jmp    8020 <_init+0x20>
+    831e:	66 90                	xchg   %ax,%ax
+    8320:	f3 0f 1e fa          	endbr64
+    8324:	68 2f 00 00 00       	push   $0x2f
+    8329:	e9 f2 fc ff ff       	jmp    8020 <_init+0x20>
+    832e:	66 90                	xchg   %ax,%ax
+    8330:	f3 0f 1e fa          	endbr64
+    8334:	68 30 00 00 00       	push   $0x30
+    8339:	e9 e2 fc ff ff       	jmp    8020 <_init+0x20>
+    833e:	66 90                	xchg   %ax,%ax
+    8340:	f3 0f 1e fa          	endbr64
+    8344:	68 31 00 00 00       	push   $0x31
+    8349:	e9 d2 fc ff ff       	jmp    8020 <_init+0x20>
+    834e:	66 90                	xchg   %ax,%ax
+    8350:	f3 0f 1e fa          	endbr64
+    8354:	68 32 00 00 00       	push   $0x32
+    8359:	e9 c2 fc ff ff       	jmp    8020 <_init+0x20>
+    835e:	66 90                	xchg   %ax,%ax
+    8360:	f3 0f 1e fa          	endbr64
+    8364:	68 33 00 00 00       	push   $0x33
+    8369:	e9 b2 fc ff ff       	jmp    8020 <_init+0x20>
+    836e:	66 90                	xchg   %ax,%ax
+    8370:	f3 0f 1e fa          	endbr64
+    8374:	68 34 00 00 00       	push   $0x34
+    8379:	e9 a2 fc ff ff       	jmp    8020 <_init+0x20>
+    837e:	66 90                	xchg   %ax,%ax
+    8380:	f3 0f 1e fa          	endbr64
+    8384:	68 35 00 00 00       	push   $0x35
+    8389:	e9 92 fc ff ff       	jmp    8020 <_init+0x20>
+    838e:	66 90                	xchg   %ax,%ax
+    8390:	f3 0f 1e fa          	endbr64
+    8394:	68 36 00 00 00       	push   $0x36
+    8399:	e9 82 fc ff ff       	jmp    8020 <_init+0x20>
+    839e:	66 90                	xchg   %ax,%ax
+    83a0:	f3 0f 1e fa          	endbr64
+    83a4:	68 37 00 00 00       	push   $0x37
+    83a9:	e9 72 fc ff ff       	jmp    8020 <_init+0x20>
+    83ae:	66 90                	xchg   %ax,%ax
+    83b0:	f3 0f 1e fa          	endbr64
+    83b4:	68 38 00 00 00       	push   $0x38
+    83b9:	e9 62 fc ff ff       	jmp    8020 <_init+0x20>
+    83be:	66 90                	xchg   %ax,%ax
+    83c0:	f3 0f 1e fa          	endbr64
+    83c4:	68 39 00 00 00       	push   $0x39
+    83c9:	e9 52 fc ff ff       	jmp    8020 <_init+0x20>
+    83ce:	66 90                	xchg   %ax,%ax
+    83d0:	f3 0f 1e fa          	endbr64
+    83d4:	68 3a 00 00 00       	push   $0x3a
+    83d9:	e9 42 fc ff ff       	jmp    8020 <_init+0x20>
+    83de:	66 90                	xchg   %ax,%ax
+    83e0:	f3 0f 1e fa          	endbr64
+    83e4:	68 3b 00 00 00       	push   $0x3b
+    83e9:	e9 32 fc ff ff       	jmp    8020 <_init+0x20>
+    83ee:	66 90                	xchg   %ax,%ax
+    83f0:	f3 0f 1e fa          	endbr64
+    83f4:	68 3c 00 00 00       	push   $0x3c
+    83f9:	e9 22 fc ff ff       	jmp    8020 <_init+0x20>
+    83fe:	66 90                	xchg   %ax,%ax
+    8400:	f3 0f 1e fa          	endbr64
+    8404:	68 3d 00 00 00       	push   $0x3d
+    8409:	e9 12 fc ff ff       	jmp    8020 <_init+0x20>
+    840e:	66 90                	xchg   %ax,%ax
+    8410:	f3 0f 1e fa          	endbr64
+    8414:	68 3e 00 00 00       	push   $0x3e
+    8419:	e9 02 fc ff ff       	jmp    8020 <_init+0x20>
+    841e:	66 90                	xchg   %ax,%ax
+    8420:	f3 0f 1e fa          	endbr64
+    8424:	68 3f 00 00 00       	push   $0x3f
+    8429:	e9 f2 fb ff ff       	jmp    8020 <_init+0x20>
+    842e:	66 90                	xchg   %ax,%ax
+    8430:	f3 0f 1e fa          	endbr64
+    8434:	68 40 00 00 00       	push   $0x40
+    8439:	e9 e2 fb ff ff       	jmp    8020 <_init+0x20>
+    843e:	66 90                	xchg   %ax,%ax
+    8440:	f3 0f 1e fa          	endbr64
+    8444:	68 41 00 00 00       	push   $0x41
+    8449:	e9 d2 fb ff ff       	jmp    8020 <_init+0x20>
+    844e:	66 90                	xchg   %ax,%ax
+    8450:	f3 0f 1e fa          	endbr64
+    8454:	68 42 00 00 00       	push   $0x42
+    8459:	e9 c2 fb ff ff       	jmp    8020 <_init+0x20>
+    845e:	66 90                	xchg   %ax,%ax
+    8460:	f3 0f 1e fa          	endbr64
+    8464:	68 43 00 00 00       	push   $0x43
+    8469:	e9 b2 fb ff ff       	jmp    8020 <_init+0x20>
+    846e:	66 90                	xchg   %ax,%ax
+    8470:	f3 0f 1e fa          	endbr64
+    8474:	68 44 00 00 00       	push   $0x44
+    8479:	e9 a2 fb ff ff       	jmp    8020 <_init+0x20>
+    847e:	66 90                	xchg   %ax,%ax
+    8480:	f3 0f 1e fa          	endbr64
+    8484:	68 45 00 00 00       	push   $0x45
