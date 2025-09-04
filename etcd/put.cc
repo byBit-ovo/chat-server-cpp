@@ -27,5 +27,6 @@ int main(int argc,char *argv[])
 		cout << "Put fail" << endl;
 		return -1;
 	}
+	sleep(30);
 	return 0;
 }
