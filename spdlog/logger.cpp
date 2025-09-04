@@ -4,7 +4,7 @@
 DEFINE_bool(log_mode,false,"false: 调试模式, true: 发布模式");
 DEFINE_string(log_file,"","发布模式下的日志输出文件");
 DEFINE_int32(log_level,0,"发布模式下的日志输出等级");
-
+struct epoll;
 int main(int argc,char *argv[])
 {
     google::ParseCommandLineFlags(&argc,&argv,true);

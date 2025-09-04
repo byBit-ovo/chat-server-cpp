@@ -2,35 +2,21 @@
 [file-logger][23:25:40][thread: 2244204][info    ][logger.cpp:14] Hello Good morning,1
 [file-logger][23:25:40][thread: 2244204][warning ][logger.cpp:15] Hello Good morning,1
 [file-logger][23:25:40][thread: 2244204][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:25:40][thread: 2244204][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:26:12][thread: 2244370][debug   ][logger.cpp:13] Hello Good morning,1
-[file-logger][23:26:12][thread: 2244370][info    ][logger.cpp:14] Hello Good morning,1
-[file-logger][23:26:12][thread: 2244370][warning ][logger.cpp:15] Hello Good morning,1
-[file-logger][23:26:12][thread: 2244370][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:26:12][thread: 2244370][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:26:13][thread: 2244374][debug   ][logger.cpp:13] Hello Good morning,1
-[file-logger][23:26:13][thread: 2244374][info    ][logger.cpp:14] Hello Good morning,1
-[file-logger][23:26:13][thread: 2244374][warning ][logger.cpp:15] Hello Good morning,1
-[file-logger][23:26:13][thread: 2244374][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:26:13][thread: 2244374][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:26:17][thread: 2244458][debug   ][logger.cpp:13] Hello Good morning,1
-[file-logger][23:26:17][thread: 2244458][info    ][logger.cpp:14] Hello Good morning,1
-[file-logger][23:26:17][thread: 2244458][warning ][logger.cpp:15] Hello Good morning,1
-[file-logger][23:26:17][thread: 2244458][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:26:17][thread: 2244458][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:26:18][thread: 2244463][debug   ][logger.cpp:13] Hello Good morning,1
-[file-logger][23:26:18][thread: 2244463][info    ][logger.cpp:14] Hello Good morning,1
-[file-logger][23:26:18][thread: 2244463][warning ][logger.cpp:15] Hello Good morning,1
-[file-logger][23:26:18][thread: 2244463][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:26:18][thread: 2244463][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:27:57][thread: 2245046][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:27:57][thread: 2245046][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:28:00][thread: 2245124][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:28:00][thread: 2245124][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:28:01][thread: 2245142][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:28:01][thread: 2245142][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:30:50][thread: 2246311][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:30:50][thread: 2246311][critical][logger.cpp:17] Hello Good morning,1
-[file-logger][23:31:00][thread: 2246418][warning ][logger.cpp:15] Hello Good morning,1
-[file-logger][23:31:00][thread: 2246418][error   ][logger.cpp:16] Hello Good morning,1
-[file-logger][23:31:00][thread: 2246418][critical][logger.cpp:17] Hello Good morning,1
+[file-logger][23:25:40][thread: 2244204][critical][logger.cpp:17] Hello Good morning,1[file-logger][16:14:45][thread: 1925203][trace   ][logger.cpp:12] Hello Good morning,1
+[file-logger][16:14:45][thread: 1925203][debug   ][logger.cpp:13] Hello Good morning,1
+[file-logger][16:14:45][thread: 1925203][info    ][logger.cpp:14] Hello Good morning,1
+[file-logger][16:14:45][thread: 1925203][warning ][logger.cpp:15] Hello Good morning,1
+[file-logger][16:14:45][thread: 1925203][error   ][logger.cpp:16] Hello Good morning,1
+[file-logger][16:14:45][thread: 1925203][critical][logger.cpp:17] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][trace   ][logger.cpp:12] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][debug   ][logger.cpp:13] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][info    ][logger.cpp:14] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][warning ][logger.cpp:15] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][error   ][logger.cpp:16] Hello Good morning,1
+[file-logger][16:14:53][thread: 1925331][critical][logger.cpp:17] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][trace   ][logger.cpp:12] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][debug   ][logger.cpp:13] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][info    ][logger.cpp:14] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][warning ][logger.cpp:15] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][error   ][logger.cpp:16] Hello Good morning,1
+[file-logger][16:14:59][thread: 1925429][critical][logger.cpp:17] Hello Good morning,1
