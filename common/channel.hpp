@@ -5,7 +5,7 @@
 #include <mutex>
 #include <memory>
 #include "logger.hpp"
-
+#include <unordered_set>
 // a manager of all channels for one specific service 
 class ServiceChannels{
 	public:
@@ -16,6 +16,10 @@ class ServiceChannels{
 		~ServiceChannels(){}
 
 		ChannelPtr choose(){
+			if(_channels.empty()){
+				LOG_WARNING("No hosts can provide {}", _service);
+				return ServiceChannels::ChannelPtr();
+			}
 			ChannelPtr choice = _channels[_choose_index];
 			++_choose_index;
 			_choose_index %= _channels.size();
@@ -69,9 +73,78 @@ class ServiceChannels{
 		std::mutex _mutex;
 };
 
-//
-
+// manager for all services
 class ServiceManager
 {
+	public:
+		using Ptr = std::shared_ptr<ServiceManager>;
+		// get certain channel of service
+		ServiceChannels::ChannelPtr GetChannel(const std::string &name)
+		{
+			std::unique_lock<std::mutex> guard(_mutex);
+			auto iter = _channels.find(name);
+			if(iter == _channels.end())
+			{
+				LOG_WARNING("No hosts can provide {}", name);
+				return ServiceChannels::ChannelPtr();
+			}
+			return iter->second->choose();
+		}
+		void FollowOn(const std::string &name)
+		{
+			std::unique_lock<std::mutex> guard(_mutex);
+			_follows.insert(name);
+		}
+		void OfflineCall(const std::string &service_name,const std::string &host)
+		{
+			ServiceChannels::Ptr channels;
+			{
+				std::unique_lock<std::mutex> guard(_mutex);
 
+				auto ext = _follows.find(service_name);
+				if(ext == _follows.end())
+				{
+					LOG_INFO("service({}) is not followed by,ignore",service_name);
+					return;
+				}
+
+				channels = _channels.find(service_name)->second;
+				if(channels.get() == nullptr)
+				{
+					LOG_WARNING("No manager for this service(OfflineCall): {}", service_name);
+					return;
+				}
+
+			}
+			channels->RemoveChannel(host);
+		}
+		void OnlineCall(const std::string &service_name,const std::string &host)
+		{
+
+			ServiceChannels::Ptr channels;
+			{
+				std::unique_lock<std::mutex> guard(_mutex);
+
+				auto ext = _follows.find(service_name);
+				if(ext == _follows.end())
+				{
+					LOG_INFO("service({}) is not followed by,ignore",service_name);
+					return;
+				}
+				
+				channels = _channels.find(service_name)->second;
+				if(channels.get() == nullptr)
+				{
+					_channels.insert(std::make_pair(service_name,std::make_shared<ServiceChannels>(service_name))).second;
+					channels = _channels.find(service_name)->second;
+				}
+
+			}
+			channels->AddChannel(host);
+		}
+	private:
+		std::mutex _mutex;
+		//which services this manager follows
+		std::unordered_set<std::string> _follows;
+		std::unordered_map<std::string,ServiceChannels::Ptr> _channels;
 };

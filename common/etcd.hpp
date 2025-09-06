@@ -7,6 +7,8 @@
 #include <functional>
 #include <memory>
 #include "logger.hpp"
+
+//
 class Discoverer{
 	public:
 		using call_back_t = std::function<void(const std::string&,const std::string&)>;
@@ -31,6 +33,7 @@ class Discoverer{
 			_watcher = std::make_shared<etcd::Watcher>(*_client,base_dir,call_back,true);
 			_watcher->Wait();
 		}
+	private:
 		void CallBack(etcd::Response resp)
 		{
 			if(resp.is_ok() == false)
