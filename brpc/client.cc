@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
 	op.max_retry = 3;
 	op.protocol = "baidu_std";
 	channel.Init("127.0.0.1:9000",&op);
-
 	example::EchoService_Stub stub(&channel);
 	example::EchoRequest *req = new example::EchoRequest();
 	example::EchoResponse *resp = new example::EchoResponse();
