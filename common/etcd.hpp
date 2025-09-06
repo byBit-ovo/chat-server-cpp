@@ -8,7 +8,7 @@
 #include <memory>
 #include "logger.hpp"
 
-//
+
 class Discoverer{
 	public:
 		using call_back_t = std::function<void(const std::string&,const std::string&)>;
