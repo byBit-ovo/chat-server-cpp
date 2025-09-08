@@ -24,14 +24,19 @@ class Discoverer{
 			{
 				LOG_ERROR("Service dicover failed: {}",resp.error_message());
 			}
+		
 			int len = resp.keys().size();
 			for(int i=0;i<len;++i)
 			{
-				LOG_INFO("{} is providing {}", resp.value(i).as_string(),resp.key(i));
+				LOG_INFO("key:{},value:{}", resp.value(i).as_string(),resp.key(i));
 			}
 			auto call_back = std::bind(&Discoverer::CallBack,this,std::placeholders::_1);
 			_watcher = std::make_shared<etcd::Watcher>(*_client,base_dir,call_back,true);
-			_watcher->Wait();
+			// _watcher->Wait();
+		}
+		~Discoverer()
+		{
+			_watcher->Cancel();
 		}
 	private:
 		void CallBack(etcd::Response resp)

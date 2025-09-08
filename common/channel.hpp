@@ -95,8 +95,9 @@ class ServiceManager
 			std::unique_lock<std::mutex> guard(_mutex);
 			_follows.insert(name);
 		}
-		void OfflineCall(const std::string &service_name,const std::string &host)
+		void OfflineCall(const std::string &service_instance,const std::string &host)
 		{
+			std::string service_name = GetServiceName(service_instance); 
 			ServiceChannels::Ptr channels;
 			{
 				std::unique_lock<std::mutex> guard(_mutex);
@@ -117,10 +118,13 @@ class ServiceManager
 
 			}
 			channels->RemoveChannel(host);
+			LOG_INFO("A host({}) is offline service({})",host,service_name);
 		}
-		void OnlineCall(const std::string &service_name,const std::string &host)
+		
+		void OnlineCall(const std::string &service_instance,const std::string &host)
 		{
-
+			// LOG_DEBUG("OnlineCall...");
+			std::string service_name = GetServiceName(service_instance); 
 			ServiceChannels::Ptr channels;
 			{
 				std::unique_lock<std::mutex> guard(_mutex);
@@ -131,17 +135,32 @@ class ServiceManager
 					LOG_INFO("service({}) is not followed by,ignore",service_name);
 					return;
 				}
-				
-				channels = _channels.find(service_name)->second;
-				if(channels.get() == nullptr)
+				auto iter = _channels.find(service_name);
+				if(iter == _channels.end())
 				{
-					_channels.insert(std::make_pair(service_name,std::make_shared<ServiceChannels>(service_name))).second;
-					channels = _channels.find(service_name)->second;
+					_channels.insert(std::make_pair(service_name,std::make_shared<ServiceChannels>(service_name)));
+					channels = _channels[service_name];
+				}
+				else
+				{
+					channels = iter->second;					
 				}
 
 			}
+			// LOG_DEBUG("OnlineCall...over");
 			channels->AddChannel(host);
+			LOG_INFO("A new host{} is online,service ({})",host,service_name);
 		}
+		private:
+			std::string GetServiceName(const std::string &service_instance)
+			{
+				std::size_t pos = service_instance.rfind('/');
+				if(pos == std::string::npos){
+					return "";
+				}
+				// /a/b/instance
+				return service_instance.substr(0,pos);
+			}
 	private:
 		std::mutex _mutex;
 		//which services this manager follows
