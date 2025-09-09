@@ -77,10 +77,37 @@ int main(int argc, char *argv[])
 	auto client = std::make_shared<elasticlient::Client>(hosts);
 	EsIndex index(client,"test_user","_doc");
 	index.Append("key1").Append("key2","keyword").Append("key3","keyword");
-	if(index.create() == false)
+	if(index.create("0002") == false)
 	{
 		LOG_ERROR("Creating index fail");
 	}
-	
+	EsInsert inserter(client,"test_user","_doc");
+	inserter.append("key1","value1").
+	append("key2","value2").
+	append("key3","value3").
+	insert("0001");
+	inserter.append("key1","value11").
+	append("key2","value22").
+	append("key3","value33").
+	insert("0001");
+		inserter.append("name","张三").
+	append("age","23").
+	append("gender","value33").
+	insert("0001");
+		inserter.append("key1","李四").
+	append("key2","2").
+	append("key3","value33").
+	insert("0001");
+	EsSearch searcher(client,"test_user","_doc");
+	auto sret = searcher.append_should_match("key1.keyword","value11").search();
+	if(sret.empty() || sret.isArray() == false)
+	{
+		LOG_ERROR("查询结果错误");
+		return -1;
+	}
+	for(int i = 0; i < sret.size();++i)
+	{
+		std::cout << sret[i]["_source"]["key1"].asString() << std::endl;
+	}
 	return 0;
 }
