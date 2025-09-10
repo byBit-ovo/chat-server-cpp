@@ -22,6 +22,7 @@ class JsonUtil
             std::string err;
             if (reader->parse(src.c_str(), src.c_str() + src.size(), &root, &err) == false)
             {
+				return Json::Value();
             }
             return root;
         }

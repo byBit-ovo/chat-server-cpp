@@ -11,28 +11,28 @@
 //  },
 //  "mappings" : {
 		//  "dynamic" : true,
-		//  "properties" : {
-		//  "nickname" : {
-			//  "type" : "text",
-			//  "analyzer" : "ik_max_word"
-	//  },
-//  "user_id" : {
-//  "type" : "keyword",
-//  "analyzer" : "standard"
-//  },
-//  "phone" : {
-//  "type" : "keyword",
-//  "analyzer" : "standard"
-//  },
-//  "description" : {
-//  "type" : "text",
-//  "enabled" : false
-//  },
-//  "avatar_id" : {
-//  "type" : "keyword"
-//  "enabled" : false
-//  } 
-//  } 
+		//  	"properties" : {
+		//  		"nickname" : {
+			//  		"type" : "text",
+			//  		"analyzer" : "ik_max_word"
+	//  			},
+//  				"user_id" : {
+//  					"type" : "keyword",
+//  					"analyzer" : "standard"
+//  				},
+//  				"phone" : {
+//  					"type" : "keyword",
+//  					"analyzer" : "standard"
+//  				},
+//  				"description" : {
+//  					"type" : "text",
+//  					"enabled" : false
+//  				},
+//  				"avatar_id" : {
+//  					"type" : "keyword"
+//  					"enabled" : false
+//  				} 
+//  		} 
 //  }
 // }
 
@@ -75,31 +75,35 @@ int main(int argc, char *argv[])
 		"http://127.0.0.1:9200/"
 	};
 	auto client = std::make_shared<elasticlient::Client>(hosts);
-	EsIndex index(client,"test_user","_doc");
-	index.Append("key1").Append("key2","keyword").Append("key3","keyword");
-	if(index.create("0002") == false)
-	{
-		LOG_ERROR("Creating index fail");
-	}
+	// EsIndex index(client,"test_user","_doc");
+	// index.Append("key1").Append("key2","keyword").Append("key3","keyword");
+	// if(index.create("0002") == false)
+	// {
+	// 	LOG_ERROR("Creating index fail");
+	// }
 	EsInsert inserter(client,"test_user","_doc");
-	inserter.append("key1","value1").
-	append("key2","value2").
-	append("key3","value3").
-	insert("0001");
-	inserter.append("key1","value11").
-	append("key2","value22").
-	append("key3","value33").
-	insert("0001");
-		inserter.append("name","张三").
-	append("age","23").
-	append("gender","value33").
-	insert("0001");
-		inserter.append("key1","李四").
-	append("key2","2").
-	append("key3","value33").
-	insert("0001");
+	// inserter.append("key1","value1").
+	// append("key2","value2").
+	// append("key3","value3").
+	// insert("0001");
+	// inserter.append("key1","value11").
+	// append("key2","value22").
+	// append("key3","value33").
+	// insert("0001");
+	// 	inserter.append("name","张三").
+	// append("age","23").
+	// append("gender","value33").
+	// insert("0001");
+	// 	inserter.append("key1","李四").
+	// append("key2","2").
+	// append("key3","value33").
+	// insert("0001");
+	inserter.append("9.10.1","v1").
+	append("9.10.2","v2").
+	append("9.10.3","v3").
+	insert("0002");
 	EsSearch searcher(client,"test_user","_doc");
-	auto sret = searcher.append_should_match("key1.keyword","value11").search();
+	auto sret = searcher.append_should_match("9.10.1.keyword","v1").search();
 	if(sret.empty() || sret.isArray() == false)
 	{
 		LOG_ERROR("查询结果错误");
@@ -107,7 +111,7 @@ int main(int argc, char *argv[])
 	}
 	for(int i = 0; i < sret.size();++i)
 	{
-		std::cout << sret[i]["_source"]["key1"].asString() << std::endl;
+		std::cout << sret[i]["_source"]["9.10.1"].asString() << std::endl;
 	}
 	return 0;
 }
