@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "json/json.hpp"
 
 std::string GetServiceName(const std::string &service_instance)
 {
@@ -38,8 +39,12 @@ class Dog:public Animal
 
 int main()
 {
-	Animal *animal = new Dog();
-	animal->Echo();
-	delete animal;
+	// Animal *animal = new Dog();
+	// animal->Echo();
+	// delete animal;
+	Json::Value root;
+	root["num1"] =1;
+	std::string ret = JsonUtil::serialize(root);
+	std::cout << ret << std::endl;
 	return 0;
 }
