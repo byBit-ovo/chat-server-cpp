@@ -79,5 +79,5 @@ struct all_name {
 
 //odb -d mysql --std c++11 --generate-query --generate-schema --profile boost/date-time student.hxx
 
-git config --global user.name "xunyiovo"
-git config --global user.email "q3302371508@qq.com"
+// git config --global user.name "xunyiovo"
+// git config --global user.email "q3302371508@qq.com"
