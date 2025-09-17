@@ -240,7 +240,7 @@ namespace odb
       ::boost::posix_time::ptime const& v =
         o._update;
 
-      bool is_null (false);
+      bool is_null (true);
       mysql::value_traits<
           ::boost::posix_time::ptime,
           mysql::id_timestamp >::set_image (

@@ -9,8 +9,8 @@
 
 int main() {
     std::shared_ptr<odb::core::database> db(
-        new odb::mysql::database("root", "123456", 
-        "TestDB", "127.0.0.1", 0, 0, "utf8"));
+        new odb::mysql::database("root", "200533", 
+        "TestDb", "0.0.0.0", 0, 0, "utf8"));
     if (!db) { return -1; }
     ptime p = boost::posix_time::second_clock::local_time();
     Person zhang("小张", 18, p);
