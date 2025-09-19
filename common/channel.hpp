@@ -1,3 +1,5 @@
+#pragma once
+
 #include <brpc/channel.h>
 #include <string>
 #include <vector>
@@ -7,7 +9,11 @@
 #include "logger.hpp"
 #include <unordered_set>
 // a manager of all channels for one specific service 
-class ServiceChannels{
+
+
+namespace MY_IM
+{
+	class ServiceChannels{
 	public:
 		using Ptr = std::shared_ptr<ServiceChannels>;
 		using ChannelPtr = std::shared_ptr<brpc::Channel>;
@@ -167,3 +173,5 @@ class ServiceManager
 		std::unordered_set<std::string> _follows;
 		std::unordered_map<std::string,ServiceChannels::Ptr> _channels;
 };
+
+}

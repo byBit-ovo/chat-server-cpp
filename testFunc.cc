@@ -35,16 +35,23 @@ class Dog:public Animal
 
 		}
 };
+class SuperDog: public Dog
+{
+	public:
+		virtual void eat()
+		{
 
+		}
+};
 
 int main()
 {
-	// Animal *animal = new Dog();
-	// animal->Echo();
-	// delete animal;
-	Json::Value root;
-	root["num1"] =1;
-	std::string ret = JsonUtil::serialize(root);
-	std::cout << ret << std::endl;
+	// Animal *p = new SuperDog();
+	// int a = 1;
+	// int &aa = a;
+	// auto b = aa;
+	// b = 2;
+	// std::cout << a << std::endl;
+	
 	return 0;
 }

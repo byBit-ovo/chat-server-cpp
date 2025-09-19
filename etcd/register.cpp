@@ -9,7 +9,7 @@ DEFINE_int64(ttl,10,"连接保活时长");
 DEFINE_string(etcd_host,"http://127.0.0.1:2379","etcd服务端地址");
 DEFINE_string(base_dir,"/service","服务监控根目录");
 DEFINE_string(service_url,"game/shoot","射击游戏目录");
-
+using namespace MY_IM;
 int main(int argc, char *argv[])
 {
     google::ParseCommandLineFlags(&argc,&argv,true);

@@ -16,6 +16,7 @@ DEFINE_int32(log_level,0,"发布模式下的日志输出等级");
 DEFINE_string(etcd_host,"http://127.0.0.1:2379","etcd服务端地址");
 DEFINE_string(base_dir,"/service","服务监控根目录");
 DEFINE_string(echo_service,"/echo","Rpc请求的服务");
+using namespace MY_IM;
 int main(int argc, char *argv[])
 {
 	google::ParseCommandLineFlags(&argc,&argv,true);
