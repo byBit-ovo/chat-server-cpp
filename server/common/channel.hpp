@@ -130,6 +130,7 @@ class ServiceManager
 		void OnlineCall(const std::string &service_instance,const std::string &host)
 		{
 			// LOG_DEBUG("OnlineCall...");
+			//a/b/c/instance --->.  a/b/c
 			std::string service_name = GetServiceName(service_instance); 
 			ServiceChannels::Ptr channels;
 			{
@@ -169,8 +170,9 @@ class ServiceManager
 			}
 	private:
 		std::mutex _mutex;
-		//which services this manager follows
+		// which services this manager follows
 		std::unordered_set<std::string> _follows;
+		// which channels/hosts are providing this service
 		std::unordered_map<std::string,ServiceChannels::Ptr> _channels;
 };
 

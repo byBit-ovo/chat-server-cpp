@@ -82,7 +82,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_speech_2eproto::offsets[] PROT
   ~0u,
   ~0u,
   0,
-  ~0u,
+  1,
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 9, sizeof(::MY_IM::SpeechRecognitionReq)},
@@ -99,12 +99,13 @@ const char descriptor_table_protodef_speech_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "ionReq\022\022\n\nrequest_id\030\001 \001(\t\022\026\n\016speech_con"
   "tent\030\002 \001(\014\022\024\n\007user_id\030\003 \001(\tH\000\210\001\001\022\027\n\nsess"
   "ion_id\030\004 \001(\tH\001\210\001\001B\n\n\010_user_idB\r\n\013_sessio"
-  "n_id\"w\n\024SpeechRecognitionRsp\022\022\n\nrequest_"
-  "id\030\001 \001(\t\022\017\n\007success\030\002 \001(\010\022\023\n\006errmsg\030\003 \001("
-  "\tH\000\210\001\001\022\032\n\022recognition_result\030\004 \001(\tB\t\n\007_e"
-  "rrmsg2^\n\rSpeechService\022M\n\021SpeechRecognit"
-  "ion\022\033.MY_IM.SpeechRecognitionReq\032\033.MY_IM"
-  ".SpeechRecognitionRspB\003\200\001\001b\006proto3"
+  "n_id\"\223\001\n\024SpeechRecognitionRsp\022\022\n\nrequest"
+  "_id\030\001 \001(\t\022\017\n\007success\030\002 \001(\010\022\023\n\006errmsg\030\003 \001"
+  "(\tH\000\210\001\001\022\037\n\022recognition_result\030\004 \001(\tH\001\210\001\001"
+  "B\t\n\007_errmsgB\025\n\023_recognition_result2^\n\rSp"
+  "eechService\022M\n\021SpeechRecognition\022\033.MY_IM"
+  ".SpeechRecognitionReq\032\033.MY_IM.SpeechReco"
+  "gnitionRspB\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_speech_2eproto_deps[1] = {
 };
@@ -114,7 +115,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_spe
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_speech_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_speech_2eproto = {
-  false, false, descriptor_table_protodef_speech_2eproto, "speech.proto", 394,
+  false, false, descriptor_table_protodef_speech_2eproto, "speech.proto", 423,
   &descriptor_table_speech_2eproto_once, descriptor_table_speech_2eproto_sccs, descriptor_table_speech_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_speech_2eproto::offsets,
   file_level_metadata_speech_2eproto, 2, file_level_enum_descriptors_speech_2eproto, file_level_service_descriptors_speech_2eproto,
@@ -477,6 +478,9 @@ class SpeechRecognitionRsp::_Internal {
   static void set_has_errmsg(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
+  static void set_has_recognition_result(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
 };
 
 SpeechRecognitionRsp::SpeechRecognitionRsp(::PROTOBUF_NAMESPACE_ID::Arena* arena)
@@ -500,7 +504,7 @@ SpeechRecognitionRsp::SpeechRecognitionRsp(const SpeechRecognitionRsp& from)
       GetArena());
   }
   recognition_result_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_recognition_result().empty()) {
+  if (from._internal_has_recognition_result()) {
     recognition_result_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_recognition_result(),
       GetArena());
   }
@@ -552,10 +556,14 @@ void SpeechRecognitionRsp::Clear() {
 
   request_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    errmsg_.ClearNonDefaultToEmpty();
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      errmsg_.ClearNonDefaultToEmpty();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      recognition_result_.ClearNonDefaultToEmpty();
+    }
   }
-  recognition_result_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   success_ = false;
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -660,7 +668,7 @@ failure:
   }
 
   // string recognition_result = 4;
-  if (this->recognition_result().size() > 0) {
+  if (_internal_has_recognition_result()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_recognition_result().data(), static_cast<int>(this->_internal_recognition_result().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -692,21 +700,23 @@ size_t SpeechRecognitionRsp::ByteSizeLong() const {
         this->_internal_request_id());
   }
 
-  // string errmsg = 3;
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_errmsg());
-  }
+  if (cached_has_bits & 0x00000003u) {
+    // string errmsg = 3;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_errmsg());
+    }
 
-  // string recognition_result = 4;
-  if (this->recognition_result().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_recognition_result());
-  }
+    // string recognition_result = 4;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_recognition_result());
+    }
 
+  }
   // bool success = 2;
   if (this->success() != 0) {
     total_size += 1 + 1;
@@ -746,11 +756,14 @@ void SpeechRecognitionRsp::MergeFrom(const SpeechRecognitionRsp& from) {
   if (from.request_id().size() > 0) {
     _internal_set_request_id(from._internal_request_id());
   }
-  if (from._internal_has_errmsg()) {
-    _internal_set_errmsg(from._internal_errmsg());
-  }
-  if (from.recognition_result().size() > 0) {
-    _internal_set_recognition_result(from._internal_recognition_result());
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _internal_set_errmsg(from._internal_errmsg());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _internal_set_recognition_result(from._internal_recognition_result());
+    }
   }
   if (from.success() != 0) {
     _internal_set_success(from._internal_success());

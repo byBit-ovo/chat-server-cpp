@@ -8,7 +8,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/qzr/gitee/Micro_communication/server/speech/source/speech.pb.cc" "CMakeFiles/speech_server.dir/source/speech.pb.cc.o" "gcc" "CMakeFiles/speech_server.dir/source/speech.pb.cc.o.d"
   "/home/qzr/gitee/Micro_communication/server/speech/source/speech_server.cc" "CMakeFiles/speech_server.dir/source/speech_server.cc.o" "gcc" "CMakeFiles/speech_server.dir/source/speech_server.cc.o.d"
   "/home/qzr/gitee/Micro_communication/server/speech/build/speech.pb.cc" "CMakeFiles/speech_server.dir/speech.pb.cc.o" "gcc" "CMakeFiles/speech_server.dir/speech.pb.cc.o.d"
   )

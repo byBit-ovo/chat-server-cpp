@@ -487,6 +487,10 @@ class SpeechRecognitionRsp PROTOBUF_FINAL :
   public:
 
   // string recognition_result = 4;
+  bool has_recognition_result() const;
+  private:
+  bool _internal_has_recognition_result() const;
+  public:
   void clear_recognition_result();
   const std::string& recognition_result() const;
   void set_recognition_result(const std::string& value);
@@ -1152,8 +1156,16 @@ inline void SpeechRecognitionRsp::unsafe_arena_set_allocated_errmsg(
 }
 
 // string recognition_result = 4;
+inline bool SpeechRecognitionRsp::_internal_has_recognition_result() const {
+  bool value = (_has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool SpeechRecognitionRsp::has_recognition_result() const {
+  return _internal_has_recognition_result();
+}
 inline void SpeechRecognitionRsp::clear_recognition_result() {
   recognition_result_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& SpeechRecognitionRsp::recognition_result() const {
   // @@protoc_insertion_point(field_get:MY_IM.SpeechRecognitionRsp.recognition_result)
@@ -1171,42 +1183,46 @@ inline const std::string& SpeechRecognitionRsp::_internal_recognition_result() c
   return recognition_result_.Get();
 }
 inline void SpeechRecognitionRsp::_internal_set_recognition_result(const std::string& value) {
-  
+  _has_bits_[0] |= 0x00000002u;
   recognition_result_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
 }
 inline void SpeechRecognitionRsp::set_recognition_result(std::string&& value) {
-  
+  _has_bits_[0] |= 0x00000002u;
   recognition_result_.Set(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
   // @@protoc_insertion_point(field_set_rvalue:MY_IM.SpeechRecognitionRsp.recognition_result)
 }
 inline void SpeechRecognitionRsp::set_recognition_result(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  
+  _has_bits_[0] |= 0x00000002u;
   recognition_result_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
               GetArena());
   // @@protoc_insertion_point(field_set_char:MY_IM.SpeechRecognitionRsp.recognition_result)
 }
 inline void SpeechRecognitionRsp::set_recognition_result(const char* value,
     size_t size) {
-  
+  _has_bits_[0] |= 0x00000002u;
   recognition_result_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
   // @@protoc_insertion_point(field_set_pointer:MY_IM.SpeechRecognitionRsp.recognition_result)
 }
 inline std::string* SpeechRecognitionRsp::_internal_mutable_recognition_result() {
-  
+  _has_bits_[0] |= 0x00000002u;
   return recognition_result_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 inline std::string* SpeechRecognitionRsp::release_recognition_result() {
   // @@protoc_insertion_point(field_release:MY_IM.SpeechRecognitionRsp.recognition_result)
-  return recognition_result_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  if (!_internal_has_recognition_result()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000002u;
+  return recognition_result_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 inline void SpeechRecognitionRsp::set_allocated_recognition_result(std::string* recognition_result) {
   if (recognition_result != nullptr) {
-    
+    _has_bits_[0] |= 0x00000002u;
   } else {
-    
+    _has_bits_[0] &= ~0x00000002u;
   }
   recognition_result_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), recognition_result,
       GetArena());
@@ -1215,7 +1231,7 @@ inline void SpeechRecognitionRsp::set_allocated_recognition_result(std::string* 
 inline std::string* SpeechRecognitionRsp::unsafe_arena_release_recognition_result() {
   // @@protoc_insertion_point(field_unsafe_arena_release:MY_IM.SpeechRecognitionRsp.recognition_result)
   GOOGLE_DCHECK(GetArena() != nullptr);
-  
+  _has_bits_[0] &= ~0x00000002u;
   return recognition_result_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       GetArena());
 }
@@ -1223,9 +1239,9 @@ inline void SpeechRecognitionRsp::unsafe_arena_set_allocated_recognition_result(
     std::string* recognition_result) {
   GOOGLE_DCHECK(GetArena() != nullptr);
   if (recognition_result != nullptr) {
-    
+    _has_bits_[0] |= 0x00000002u;
   } else {
-    
+    _has_bits_[0] &= ~0x00000002u;
   }
   recognition_result_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       recognition_result, GetArena());

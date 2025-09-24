@@ -29,9 +29,11 @@ namespace MY_IM
 			}
 
 			int len = resp.keys().size();
+			LOG_INFO("Info under {} directory are as follows: ",base_dir);
 			for (int i = 0; i < len; ++i)
 			{
-				LOG_INFO("key:{},value:{}", resp.value(i).as_string(), resp.key(i));
+				LOG_INFO("key:{},value:{}", resp.key(i),resp.value(i).as_string());
+				if(_put_call) _put_call(resp.key(i),resp.value(i).as_string());
 			}
 			auto call_back = std::bind(&Discoverer::CallBack, this, std::placeholders::_1);
 			_watcher = std::make_shared<etcd::Watcher>(*_client, base_dir, call_back, true);

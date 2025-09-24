@@ -1,5 +1,5 @@
 #pragma once
-#include "../../third_part/voice/aip-cpp-sdk-4.16.7/speech.h"
+#include "aip-cpp-sdk/speech.h"
 #include "logger.hpp"
 //automatically speech recognition
 namespace MY_IM

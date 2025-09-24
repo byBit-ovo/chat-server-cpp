@@ -11,14 +11,14 @@ DEFINE_int64(ttl,3,"连接保活时长");
 DEFINE_string(etcd_host,"http://127.0.0.1:2379","etcd服务端地址");
 DEFINE_string(base_dir,"/service","服务监控根目录");
 DEFINE_string(instance_name, "/speech_service/instance", "当前实例名称");
-DEFINE_string(self_addr,"127.0.0.1:9191","Rpc服务提供地址");
+DEFINE_string(access_addr,"127.0.0.1:9191","Rpc服务至注册中心地址");
 
 
 DEFINE_string(app_id, "120114390", "语音平台应用ID");
 DEFINE_string(api_key, "EFjD50piY2fiQps5ZzLSmQEE", "语音平台API密钥");
 DEFINE_string(secret_key, "ANTsDIMZOGglxE6m6HQ6f0hI9zOzXNNj", "语音平台加密密钥");
 
-DEFINE_int32(listen_port, 10001, "Rpc服务器监听端口");
+DEFINE_int32(listen_port, 9191, "Rpc服务器监听端口");
 DEFINE_int32(rpc_timeout, -1, "Rpc调用超时时间");
 DEFINE_int32(rpc_threads, 1, "Rpc的IO线程数量");
 
@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
 	MY_IM::SpeechServerBuilder speech_builder;
 	speech_builder.
 	Construct_ASR_Service(FLAGS_app_id,FLAGS_api_key,FLAGS_secret_key).
-	Construct_Register(FLAGS_etcd_host,FLAGS_base_dir + FLAGS_instance_name,FLAGS_self_addr).
-	Construct_Rpc_Server(FLAGS_listen_port,FLAGS_rpc_timeout,FLAGS_rpc_threads);
+	Construct_Rpc_Server(FLAGS_listen_port,FLAGS_rpc_timeout,FLAGS_rpc_threads).
+	Construct_Register(FLAGS_etcd_host,FLAGS_base_dir + FLAGS_instance_name,FLAGS_access_addr);
 
 	auto speech_server = speech_builder.Build();
 	speech_server->Start();

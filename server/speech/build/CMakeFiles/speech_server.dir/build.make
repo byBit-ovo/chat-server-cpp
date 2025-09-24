@@ -73,24 +73,10 @@ speech.pb.cc: /home/qzr/gitee/Micro_communication/server/proto/speech.proto
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) /home/qzr/gitee/Micro_communication/server/speech/build/speech.pb.cc
 	protoc --cpp_out=/home/qzr/gitee/Micro_communication/server/speech/build -I /home/qzr/gitee/Micro_communication/server/speech/../proto --experimental_allow_proto3_optional /home/qzr/gitee/Micro_communication/server/speech/../proto/speech.proto
 
-CMakeFiles/speech_server.dir/source/speech.pb.cc.o: CMakeFiles/speech_server.dir/flags.make
-CMakeFiles/speech_server.dir/source/speech.pb.cc.o: ../source/speech.pb.cc
-CMakeFiles/speech_server.dir/source/speech.pb.cc.o: CMakeFiles/speech_server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/speech_server.dir/source/speech.pb.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/speech_server.dir/source/speech.pb.cc.o -MF CMakeFiles/speech_server.dir/source/speech.pb.cc.o.d -o CMakeFiles/speech_server.dir/source/speech.pb.cc.o -c /home/qzr/gitee/Micro_communication/server/speech/source/speech.pb.cc
-
-CMakeFiles/speech_server.dir/source/speech.pb.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/speech_server.dir/source/speech.pb.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qzr/gitee/Micro_communication/server/speech/source/speech.pb.cc > CMakeFiles/speech_server.dir/source/speech.pb.cc.i
-
-CMakeFiles/speech_server.dir/source/speech.pb.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/speech_server.dir/source/speech.pb.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qzr/gitee/Micro_communication/server/speech/source/speech.pb.cc -o CMakeFiles/speech_server.dir/source/speech.pb.cc.s
-
 CMakeFiles/speech_server.dir/source/speech_server.cc.o: CMakeFiles/speech_server.dir/flags.make
 CMakeFiles/speech_server.dir/source/speech_server.cc.o: ../source/speech_server.cc
 CMakeFiles/speech_server.dir/source/speech_server.cc.o: CMakeFiles/speech_server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/speech_server.dir/source/speech_server.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/speech_server.dir/source/speech_server.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/speech_server.dir/source/speech_server.cc.o -MF CMakeFiles/speech_server.dir/source/speech_server.cc.o.d -o CMakeFiles/speech_server.dir/source/speech_server.cc.o -c /home/qzr/gitee/Micro_communication/server/speech/source/speech_server.cc
 
 CMakeFiles/speech_server.dir/source/speech_server.cc.i: cmake_force
@@ -104,7 +90,7 @@ CMakeFiles/speech_server.dir/source/speech_server.cc.s: cmake_force
 CMakeFiles/speech_server.dir/speech.pb.cc.o: CMakeFiles/speech_server.dir/flags.make
 CMakeFiles/speech_server.dir/speech.pb.cc.o: speech.pb.cc
 CMakeFiles/speech_server.dir/speech.pb.cc.o: CMakeFiles/speech_server.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/speech_server.dir/speech.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/speech_server.dir/speech.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/speech_server.dir/speech.pb.cc.o -MF CMakeFiles/speech_server.dir/speech.pb.cc.o.d -o CMakeFiles/speech_server.dir/speech.pb.cc.o -c /home/qzr/gitee/Micro_communication/server/speech/build/speech.pb.cc
 
 CMakeFiles/speech_server.dir/speech.pb.cc.i: cmake_force
@@ -117,20 +103,18 @@ CMakeFiles/speech_server.dir/speech.pb.cc.s: cmake_force
 
 # Object files for target speech_server
 speech_server_OBJECTS = \
-"CMakeFiles/speech_server.dir/source/speech.pb.cc.o" \
 "CMakeFiles/speech_server.dir/source/speech_server.cc.o" \
 "CMakeFiles/speech_server.dir/speech.pb.cc.o"
 
 # External object files for target speech_server
 speech_server_EXTERNAL_OBJECTS =
 
-speech_server: CMakeFiles/speech_server.dir/source/speech.pb.cc.o
 speech_server: CMakeFiles/speech_server.dir/source/speech_server.cc.o
 speech_server: CMakeFiles/speech_server.dir/speech.pb.cc.o
 speech_server: CMakeFiles/speech_server.dir/build.make
-speech_server: /usr/lib/x86_64-linux-gnu/libjsoncpp.so.25
+speech_server: /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19
 speech_server: CMakeFiles/speech_server.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable speech_server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable speech_server"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/speech_server.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

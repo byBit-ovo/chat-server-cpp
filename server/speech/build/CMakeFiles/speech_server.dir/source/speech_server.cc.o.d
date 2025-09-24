@@ -3,8 +3,8 @@ CMakeFiles/speech_server.dir/source/speech_server.cc.o: \
  /usr/include/stdc-predef.h \
  /home/qzr/gitee/Micro_communication/server/speech/source/speech_server.hpp \
  /home/qzr/gitee/Micro_communication/server/speech/../common/../common/asr.hpp \
- /home/qzr/gitee/Micro_communication/server/speech/../common/../common/../../third_part/voice/aip-cpp-sdk-4.16.7/speech.h \
- /home/qzr/gitee/Micro_communication/server/speech/../common/../common/../../third_part/voice/aip-cpp-sdk-4.16.7/base/base.h \
+ /home/qzr/gitee/Micro_communication/server/speech/../third/include/aip-cpp-sdk/speech.h \
+ /home/qzr/gitee/Micro_communication/server/speech/../third/include/aip-cpp-sdk/base/base.h \
  /usr/include/c++/11/memory /usr/include/c++/11/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -121,7 +121,7 @@ CMakeFiles/speech_server.dir/source/speech_server.cc.o: \
  /usr/include/c++/11/pstl/glue_memory_defs.h \
  /usr/include/c++/11/pstl/execution_defs.h /usr/include/c++/11/cstring \
  /usr/include/string.h /usr/include/strings.h \
- /home/qzr/gitee/Micro_communication/server/speech/../common/../common/../../third_part/voice/aip-cpp-sdk-4.16.7/base/http.h \
+ /home/qzr/gitee/Micro_communication/server/speech/../third/include/aip-cpp-sdk/base/http.h \
  /usr/include/x86_64-linux-gnu/curl/curl.h \
  /usr/include/x86_64-linux-gnu/curl/curlver.h \
  /usr/include/x86_64-linux-gnu/curl/system.h \
@@ -221,9 +221,9 @@ CMakeFiles/speech_server.dir/source/speech_server.cc.o: \
  /usr/include/c++/11/bits/stl_deque.h /usr/include/c++/11/bits/deque.tcc \
  /usr/include/c++/11/stack /usr/include/c++/11/bits/stl_stack.h \
  /usr/local/include/json/writer.h \
- /home/qzr/gitee/Micro_communication/server/speech/../common/../common/../../third_part/voice/aip-cpp-sdk-4.16.7/base/base64.h \
+ /home/qzr/gitee/Micro_communication/server/speech/../third/include/aip-cpp-sdk/base/base64.h \
  /usr/include/c++/11/iostream \
- /home/qzr/gitee/Micro_communication/server/speech/../common/../common/../../third_part/voice/aip-cpp-sdk-4.16.7/base/utils.h \
+ /home/qzr/gitee/Micro_communication/server/speech/../third/include/aip-cpp-sdk/base/utils.h \
  /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
@@ -380,8 +380,7 @@ CMakeFiles/speech_server.dir/source/speech_server.cc.o: \
  /usr/include/etcd/v3/Member.hpp /usr/include/etcd/SyncClient.hpp \
  /usr/include/etcd/v3/action_constants.hpp \
  /usr/include/etcd/KeepAlive.hpp /usr/include/etcd/Watcher.hpp \
- /home/qzr/gitee/Micro_communication/server/speech/source/speech.pb.h \
- /usr/include/google/protobuf/port_def.inc \
+ speech.pb.h /usr/include/google/protobuf/port_def.inc \
  /usr/include/google/protobuf/port_undef.inc \
  /usr/include/google/protobuf/io/coded_stream.h \
  /usr/include/c++/11/climits /usr/include/x86_64-linux-gnu/sys/param.h \

@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/qzr/gitee/Micro_communication/server/speech/build/speech.pb.cc" "CMakeFiles/speech_client.dir/speech.pb.cc.o" "gcc" "CMakeFiles/speech_client.dir/speech.pb.cc.o.d"
+  "/home/qzr/gitee/Micro_communication/server/speech/test/speech_client.cc" "CMakeFiles/speech_client.dir/test/speech_client.cc.o" "gcc" "CMakeFiles/speech_client.dir/test/speech_client.cc.o.d"
   )
 
 # Targets to which this target links.

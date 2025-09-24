@@ -187,30 +187,6 @@ speech_client/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_client.dir/build.make CMakeFiles/speech_client.dir/build
 .PHONY : speech_client/fast
 
-source/speech.pb.o: source/speech.pb.cc.o
-.PHONY : source/speech.pb.o
-
-# target to build an object file
-source/speech.pb.cc.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_server.dir/build.make CMakeFiles/speech_server.dir/source/speech.pb.cc.o
-.PHONY : source/speech.pb.cc.o
-
-source/speech.pb.i: source/speech.pb.cc.i
-.PHONY : source/speech.pb.i
-
-# target to preprocess a source file
-source/speech.pb.cc.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_server.dir/build.make CMakeFiles/speech_server.dir/source/speech.pb.cc.i
-.PHONY : source/speech.pb.cc.i
-
-source/speech.pb.s: source/speech.pb.cc.s
-.PHONY : source/speech.pb.s
-
-# target to generate assembly for a file
-source/speech.pb.cc.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_server.dir/build.make CMakeFiles/speech_server.dir/source/speech.pb.cc.s
-.PHONY : source/speech.pb.cc.s
-
 source/speech_server.o: source/speech_server.cc.o
 .PHONY : source/speech_server.o
 
@@ -262,6 +238,30 @@ speech.pb.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_client.dir/build.make CMakeFiles/speech_client.dir/speech.pb.cc.s
 .PHONY : speech.pb.cc.s
 
+test/speech_client.o: test/speech_client.cc.o
+.PHONY : test/speech_client.o
+
+# target to build an object file
+test/speech_client.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_client.dir/build.make CMakeFiles/speech_client.dir/test/speech_client.cc.o
+.PHONY : test/speech_client.cc.o
+
+test/speech_client.i: test/speech_client.cc.i
+.PHONY : test/speech_client.i
+
+# target to preprocess a source file
+test/speech_client.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_client.dir/build.make CMakeFiles/speech_client.dir/test/speech_client.cc.i
+.PHONY : test/speech_client.cc.i
+
+test/speech_client.s: test/speech_client.cc.s
+.PHONY : test/speech_client.s
+
+# target to generate assembly for a file
+test/speech_client.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/speech_client.dir/build.make CMakeFiles/speech_client.dir/test/speech_client.cc.s
+.PHONY : test/speech_client.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -276,15 +276,15 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... speech_client"
 	@echo "... speech_server"
-	@echo "... source/speech.pb.o"
-	@echo "... source/speech.pb.i"
-	@echo "... source/speech.pb.s"
 	@echo "... source/speech_server.o"
 	@echo "... source/speech_server.i"
 	@echo "... source/speech_server.s"
 	@echo "... speech.pb.o"
 	@echo "... speech.pb.i"
 	@echo "... speech.pb.s"
+	@echo "... test/speech_client.o"
+	@echo "... test/speech_client.i"
+	@echo "... test/speech_client.s"
 .PHONY : help
 
 

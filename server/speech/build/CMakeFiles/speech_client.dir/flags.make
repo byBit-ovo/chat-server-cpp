@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/qzr/gitee/Micro_communication/server/speech/build -I/home/qzr/gitee/Micro_communication/server/speech/../common -I/home/qzr/gitee/Micro_communication/server/speech/../../third/include/voice
+CXX_INCLUDES = -I/home/qzr/gitee/Micro_communication/server/speech/build -I/home/qzr/gitee/Micro_communication/server/speech/../common -I/home/qzr/gitee/Micro_communication/server/speech/../third/include
 
 CXX_FLAGS = 
 
