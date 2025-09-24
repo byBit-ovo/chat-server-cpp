@@ -8,7 +8,8 @@
 以发现所有的能够提供用户操作的实例信息了
 */
 syntax = "proto3";
-package bite_im;
+package MY_IM;
+
 import "base.proto";
 option cc_generic_services = true;
 message GetHistoryMsgReq {

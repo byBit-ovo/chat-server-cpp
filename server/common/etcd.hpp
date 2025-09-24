@@ -82,7 +82,7 @@ namespace MY_IM
 	{
 	public:
 		using ptr = std::shared_ptr<Registerant>;
-		Registerant(const std::string &host, int64_t ttl) : _client(std::make_shared<etcd::Client>(host)), _ttl(ttl)
+		Registerant(const std::string &host, int64_t ttl = 5) : _client(std::make_shared<etcd::Client>(host)), _ttl(ttl)
 		{
 			_keep_alive = _client->leasekeepalive(_ttl).get();
 			_lease_id = _keep_alive->Lease();
