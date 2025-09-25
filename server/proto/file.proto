@@ -60,10 +60,8 @@ message PutMultiFileRsp {
  repeated FileMessageInfo file_info = 4;
 } 
 service FileService {
- rpc GetSingleFile(GetSingleFileReq) returns 
-(GetSingleFileRsp);
+ rpc GetSingleFile(GetSingleFileReq) returns (GetSingleFileRsp);
  rpc GetMultiFile(GetMultiFileReq) returns (GetMultiFileRsp);
- rpc PutSingleFile(PutSingleFileReq) returns 
-(PutSingleFileRsp);
+ rpc PutSingleFile(PutSingleFileReq) returns (PutSingleFileRsp);
  rpc PutMultiFile(PutMultiFileReq) returns (PutMultiFileRsp);
 }
