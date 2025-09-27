@@ -6,12 +6,23 @@
 #include "base.pb.h"
 #include "utils.hpp"
 #include "logger.hpp"
-
+#include <sys/stat.h>
+#include <sys/types.h>
 namespace MY_IM
 {
 	class FileServiceImplement : public FileService
 	{
 	public:
+		FileServiceImplement(const std::string &files_dir):
+		_files_dir(files_dir)
+		{
+			umask(0);
+			mkdir(files_dir.c_str(),0775);
+			if(_files_dir.back() != '/')
+			{
+				_files_dir += '/';
+			}
+		}
 		virtual void GetSingleFile(
 			google::protobuf::RpcController *controller,
 			const GetSingleFileReq *request,
@@ -22,7 +33,7 @@ namespace MY_IM
 			std::string file_id = request->file_id();
 			string file_content;
 			response->set_request_id(request->request_id());
-			bool ret = ReadFile(file_id,file_content);
+			bool ret = ReadFile(_files_dir + file_id,file_content);
 			if(ret == false){
 				response->set_success(false);
 				response->set_errmsg("read file fail!");
@@ -44,9 +55,9 @@ namespace MY_IM
 
 			for(int i = 0;i < request->file_id_list_size();++i)
 			{
-				string file_name = request->file_id_list(i);
+				string file_id = request->file_id_list(i);
 				string file_content;
-				bool ret = ReadFile(file_name,file_content);
+				bool ret = ReadFile(_files_dir + file_id,file_content);
 				if(ret == false){
 					response->clear_file_data();
 					response->set_success(false);
@@ -54,9 +65,9 @@ namespace MY_IM
 					return;
 				}
 			 	FileDownloadData file_data;
-				file_data.set_file_id(file_name);
+				file_data.set_file_id(file_id);
 				file_data.set_file_content(file_content);
-				response->mutable_file_data()->insert({file_name,file_data});
+				response->mutable_file_data()->insert({file_id,file_data});
 			}
 			response->set_success(true);
 		}
@@ -69,10 +80,11 @@ namespace MY_IM
 			brpc::ClosureGuard guard(done);
 
 			response->set_request_id(request->request_id());
-			string uuid = Uuid();
+			std::string uuid = Uuid();
+			std::string file_path = _files_dir + uuid;
 			// Because there may be mutiple clients uploading files with the same name,
 			// the server use uuid to store, instead of file name
-			bool ret = WriteFile(uuid,request->file_data().file_content());
+			bool ret = WriteFile(file_path,request->file_data().file_content());
 			if(ret == false){
 				response->set_success(false);
 				response->set_errmsg("write file fail!");
@@ -95,9 +107,10 @@ namespace MY_IM
 			for(int i = 0;i < request->file_data_size();++i)
 			{
 				string uuid = Uuid();
+				string file_path = _files_dir + uuid;
 				// Because there may be mutiple clients uploading files with the same name,
 				// the server use uuid to store, instead of file name
-				bool ret = WriteFile(uuid,request->file_data(i).file_content());
+				bool ret = WriteFile(file_path,request->file_data(i).file_content());
 				if(ret == false){
 					response->clear_file_info();
 					response->set_success(false);
@@ -113,6 +126,7 @@ namespace MY_IM
 		}
 
 	private:
+		std::string _files_dir;
 		
 	};
 
@@ -145,9 +159,9 @@ namespace MY_IM
 			using ref = FileServerBuilder&;
 
 			// 1.
-			ref Construct_File_Service()
+			ref Construct_File_Service(const std::string &files_dir = "./asset/")
 			{
-				_file_service = new FileServiceImplement();
+				_file_service = new FileServiceImplement(files_dir);
 				return *this;
 			}
 			
@@ -203,7 +217,7 @@ namespace MY_IM
 					_file_service == nullptr || 
 					_rpc_server.get()==nullptr)
 				{
-					LOG_WARNING("You should implement service&register*rpc_server before build FileServer!");
+					LOG_WARNING("You should implement service&register&rpc_server before build FileServer!");
 					abort();
 				}
 				return std::make_shared<FileServer>(_rpc_server,_register_client,_file_service);

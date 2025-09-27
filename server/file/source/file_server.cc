@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
 	google::ParseCommandLineFlags(&argc,&argv,true);
     init_logger(FLAGS_log_mode,FLAGS_log_file,FLAGS_log_level);
 
-	logging::LoggingSettings setting;
-	setting.logging_dest = logging::LoggingDestination::LOG_TO_NONE;
+	// logging::LoggingSettings setting;
+	// setting.logging_dest = logging::LoggingDestination::LOG_TO_NONE;
 	// close logger in brpc
-	logging::InitLogging(setting);
+	// logging::InitLogging(setting);
 
 	MY_IM::FileServerBuilder file_builder;
 	file_builder.
