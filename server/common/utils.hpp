@@ -35,7 +35,7 @@ namespace MY_IM
 		return ss.str();
 	}
 
-	bool readFile(const std::string &filename, std::string &body)
+	bool ReadFile(const std::string &filename, std::string &body)
 	{
 		// 实现读取一个文件的所有数据，放入body中
 		std::ifstream ifs(filename, std::ios::binary | std::ios::in);
@@ -58,7 +58,7 @@ namespace MY_IM
 		ifs.close();
 		return true;
 	}
-	bool writeFile(const std::string &filename, const std::string &body)
+	bool WriteFile(const std::string &filename, const std::string &body)
 	{
 		// 实现将body中的数据，写入filename对应的文件中
 		std::ofstream ofs(filename, std::ios::out | std::ios::binary | std::ios::trunc);
@@ -78,5 +78,4 @@ namespace MY_IM
 		return true;
 	}
 
-}
 }
