@@ -1,4 +1,5 @@
 /home/qzr/gitee/Micro_communication/server/file/build/CMakeFiles/file_server.dir
+/home/qzr/gitee/Micro_communication/server/file/build/CMakeFiles/file_client.dir
 /home/qzr/gitee/Micro_communication/server/file/build/CMakeFiles/edit_cache.dir
 /home/qzr/gitee/Micro_communication/server/file/build/CMakeFiles/rebuild_cache.dir
 /home/qzr/gitee/Micro_communication/server/file/build/CMakeFiles/list_install_components.dir

@@ -174,12 +174,26 @@ file_server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/build
 .PHONY : file_server/fast
 
+#=============================================================================
+# Target rules for targets named file_client
+
+# Build rule for target.
+file_client: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 file_client
+.PHONY : file_client
+
+# fast build rule for target.
+file_client/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/build
+.PHONY : file_client/fast
+
 base.pb.o: base.pb.cc.o
 .PHONY : base.pb.o
 
 # target to build an object file
 base.pb.cc.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/base.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/base.pb.cc.o
 .PHONY : base.pb.cc.o
 
 base.pb.i: base.pb.cc.i
@@ -188,6 +202,7 @@ base.pb.i: base.pb.cc.i
 # target to preprocess a source file
 base.pb.cc.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/base.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/base.pb.cc.i
 .PHONY : base.pb.cc.i
 
 base.pb.s: base.pb.cc.s
@@ -196,6 +211,7 @@ base.pb.s: base.pb.cc.s
 # target to generate assembly for a file
 base.pb.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/base.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/base.pb.cc.s
 .PHONY : base.pb.cc.s
 
 file.pb.o: file.pb.cc.o
@@ -204,6 +220,7 @@ file.pb.o: file.pb.cc.o
 # target to build an object file
 file.pb.cc.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/file.pb.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/file.pb.cc.o
 .PHONY : file.pb.cc.o
 
 file.pb.i: file.pb.cc.i
@@ -212,6 +229,7 @@ file.pb.i: file.pb.cc.i
 # target to preprocess a source file
 file.pb.cc.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/file.pb.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/file.pb.cc.i
 .PHONY : file.pb.cc.i
 
 file.pb.s: file.pb.cc.s
@@ -220,6 +238,7 @@ file.pb.s: file.pb.cc.s
 # target to generate assembly for a file
 file.pb.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/file.pb.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/file.pb.cc.s
 .PHONY : file.pb.cc.s
 
 source/file_server.o: source/file_server.cc.o
@@ -246,6 +265,30 @@ source/file_server.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_server.dir/build.make CMakeFiles/file_server.dir/source/file_server.cc.s
 .PHONY : source/file_server.cc.s
 
+test/file_client.o: test/file_client.cc.o
+.PHONY : test/file_client.o
+
+# target to build an object file
+test/file_client.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/test/file_client.cc.o
+.PHONY : test/file_client.cc.o
+
+test/file_client.i: test/file_client.cc.i
+.PHONY : test/file_client.i
+
+# target to preprocess a source file
+test/file_client.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/test/file_client.cc.i
+.PHONY : test/file_client.cc.i
+
+test/file_client.s: test/file_client.cc.s
+.PHONY : test/file_client.s
+
+# target to generate assembly for a file
+test/file_client.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/file_client.dir/build.make CMakeFiles/file_client.dir/test/file_client.cc.s
+.PHONY : test/file_client.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -258,6 +301,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... file_client"
 	@echo "... file_server"
 	@echo "... base.pb.o"
 	@echo "... base.pb.i"
@@ -268,6 +312,9 @@ help:
 	@echo "... source/file_server.o"
 	@echo "... source/file_server.i"
 	@echo "... source/file_server.s"
+	@echo "... test/file_client.o"
+	@echo "... test/file_client.i"
+	@echo "... test/file_client.s"
 .PHONY : help
 
 
