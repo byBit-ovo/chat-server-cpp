@@ -20,10 +20,11 @@ namespace MY_IM
 			}
 	};
 
-	class Session
+	class SessionClient
 	{
 		public:
-			Session(std::shared_ptr<sw::redis::Redis> client):
+            using ptr = std::shared_ptr<SessionClient>;
+			SessionClient(std::shared_ptr<sw::redis::Redis> client):
 			_redis_client(client)
 			{}
 
@@ -41,10 +42,10 @@ namespace MY_IM
 			std::shared_ptr<sw::redis::Redis> _redis_client;
 	};
 
-	class Status {
+	class StatusClient {
         public:
-            using ptr = std::shared_ptr<Status>;
-            Status(const std::shared_ptr<sw::redis::Redis> &redis_client):
+            using ptr = std::shared_ptr<StatusClient>;
+            StatusClient(const std::shared_ptr<sw::redis::Redis> &redis_client):
                 _redis_client(redis_client){}
             void append(const std::string &uid) {
                 _redis_client->set(uid, "");
@@ -61,10 +62,10 @@ namespace MY_IM
             std::shared_ptr<sw::redis::Redis> _redis_client;
     };
 
-	class Codes {
+	class CodesClient {
         public:
-            using ptr = std::shared_ptr<Codes>;
-            Codes(const std::shared_ptr<sw::redis::Redis> &redis_client):
+            using ptr = std::shared_ptr<CodesClient>;
+            CodesClient(const std::shared_ptr<sw::redis::Redis> &redis_client):
                 _redis_client(redis_client){}
             void append(const std::string &cid, const std::string &code, 
                 const std::chrono::milliseconds &t = std::chrono::milliseconds(300000)) {

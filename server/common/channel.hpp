@@ -83,7 +83,7 @@ namespace MY_IM
 class ServiceManager
 {
 	public:
-		using Ptr = std::shared_ptr<ServiceManager>;
+		using ptr = std::shared_ptr<ServiceManager>;
 		// get certain channel of service
 		ServiceChannels::ChannelPtr GetChannel(const std::string &name)
 		{
