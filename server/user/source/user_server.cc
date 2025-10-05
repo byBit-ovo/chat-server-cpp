@@ -13,11 +13,6 @@ DEFINE_string(base_dir,"/service","服务监控根目录");
 DEFINE_string(instance_name, "/speech_service/instance", "当前实例名称");
 DEFINE_string(access_addr,"127.0.0.1:9191","Rpc服务至注册中心地址");
 
-
-DEFINE_string(app_id, "120114390", "语音平台应用ID");
-DEFINE_string(api_key, "EFjD50piY2fiQps5ZzLSmQEE", "语音平台API密钥");
-DEFINE_string(secret_key, "ANTsDIMZOGglxE6m6HQ6f0hI9zOzXNNj", "语音平台加密密钥");
-
 DEFINE_int32(listen_port, 9191, "Rpc服务器监听端口");
 DEFINE_int32(rpc_timeout, -1, "Rpc调用超时时间");
 DEFINE_int32(rpc_threads, 1, "Rpc的IO线程数量");
