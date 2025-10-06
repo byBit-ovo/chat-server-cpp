@@ -80,6 +80,7 @@ namespace MY_IM
 };
 
 // manager for all services
+// cooperate with Discoverer
 class ServiceManager
 {
 	public:
@@ -101,6 +102,7 @@ class ServiceManager
 			std::unique_lock<std::mutex> guard(_mutex);
 			_follows.insert(name);
 		}
+		// this method to discoverer's del_call
 		void OfflineCall(const std::string &service_instance,const std::string &host)
 		{
 			std::string service_name = GetServiceName(service_instance); 
@@ -126,7 +128,7 @@ class ServiceManager
 			channels->RemoveChannel(host);
 			LOG_INFO("A host({}) is offline service({})",host,service_name);
 		}
-		
+		// this method to discoverer's put_call
 		void OnlineCall(const std::string &service_instance,const std::string &host)
 		{
 			// LOG_DEBUG("OnlineCall...");

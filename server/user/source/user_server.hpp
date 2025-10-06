@@ -1,4 +1,4 @@
-#include "etcd.hpp"
+#include "../../common/etcd.hpp"
 #include "../../common/channel.hpp"
 #include "redis.hpp"
 #include "mysql.hpp"
@@ -167,15 +167,14 @@ namespace MY_IM
 		public:
 			using ptr = std::shared_ptr<UserServer>;
 			UserServer(
-				std::shared_ptr<brpc::Server> rpc_server,
-				Registerant::ptr register_client,
-				UserServiceImplement *user_service,
-				const std::string &host, const std::string &base_dir,
-				const Discoverer::call_back_t &put_call, 
-				const Discoverer::call_back_t &del_call
+				const std::shared_ptr<brpc::Server> &rpc_server,
+				const Registerant::ptr &reg_client,
+				const Discoverer::ptr &discover_client,
+				UserServiceImplement *user_service
 			):
 				_rpc_server(rpc_server),
-				_register_client(register_client),
+				_register_client(reg_client),
+				_discover_client(discover_client),
 				_user_service(user_service)
 			{
 			}
@@ -236,37 +235,47 @@ namespace MY_IM
 			{
 				_redis_client = RedisFactory::create(ip, port, db, keep_alive);
 			}
-			ref Construct_User_Service()
-			{
 
-				// const std::shared_ptr<elasticlient::Client> &es_client,
-				// const std::shared_ptr<odb::core::database> &mysql_client,
-				// const std::shared_ptr<sw::redis::Redis> &redis_client,
-				// const ServiceManager::ptr &channel_manager,
-				// const std::string &file_service_name
-
-				return *this;
-			}
 			ref Construct_Discover_Client
 			(	const std::string &host, const std::string &base_dir,
-				const Discoverer::call_back_t &put_call, 
-				const Discoverer::call_back_t &del_call
+				const std::string &file_service_name
 			)
 			{
+				_file_service_name = file_service_name;
+				_channel_manager = std::make_shared<ServiceManager>();
+				_channel_manager->FollowOn(file_service_name);
+				auto put_call = std::bind(ServiceManager::OnlineCall,_channel_manager.get(),
+				std::placeholders::_1,std::placeholders::_2);
+				auto del_call = std::bind(ServiceManager::OfflineCall,_channel_manager.get(),
+				std::placeholders::_1,std::placeholders::_2);
 				_discover_client = std::make_shared<Discoverer>(host,base_dir,put_call,del_call);
+
 				return *this;
 			}
 
 			// 2.
 			ref Construct_Rpc_Server(int port, int ttl, int thread_nums)
 			{
-				if (_user_service == nullptr)
-				{
-					LOG_WARNING("You should implement service and register before construct rpc server");
-					return *this;
+				if (!_es_client) {
+                	LOG_ERROR("You should initialize ES module first!");
+                	abort();
+				}
+				if (!_mysql_client) {
+                	LOG_ERROR("You should initialize MySQL module first!");
+					abort();
+				}
+				if (!_redis_client) {
+                	LOG_ERROR("You should initialize Redis module first!");
+					abort();
+				}
+				if (!_channel_manager) {
+                	LOG_ERROR("You should initialize ChannelManager module first!");
+					abort();
 				}
 
 				_rpc_server = std::make_shared<brpc::Server>();
+				_user_service = new UserServiceImplement(_es_client,_mysql_client,_redis_client,
+					_channel_manager,_file_service_name);
 				// 注意这里，_user_service的 生命周期/所有权 要交给_rpc_server来管理，所以该server拥有该服务
 				if (-1 == _rpc_server->AddService(_user_service, brpc::ServiceOwnership::SERVER_OWNS_SERVICE))
 				{
@@ -309,20 +318,23 @@ namespace MY_IM
 			{
 				if (_register_client.get() == nullptr ||
 					_user_service == nullptr ||
-					_rpc_server.get() == nullptr)
+					_rpc_server.get() == nullptr ||
+					_discover_client.get() == nullptr)
 				{
-					LOG_WARNING("You should implement service&register*rpc_server before build UserServer!");
+					LOG_WARNING("You should implement dicoverer、register、rpc_server、user_service before build UserServer!");
 					abort();
 				}
 				return std::make_shared<UserServer>(_rpc_server, _register_client, _user_service);
 			}
 
 		private:
+			// these five members are for UserServiceImplement
 			std::shared_ptr<elasticlient::Client> _es_client;
 			std::shared_ptr<odb::core::database> _mysql_client;
 			std::shared_ptr<sw::redis::Redis> _redis_client;
 			ServiceManager::ptr _channel_manager;
 			std::string _file_service_name;
+			// these four members are for UserServer
 			std::shared_ptr<brpc::Server> _rpc_server;
 			Registerant::ptr _register_client;
 			UserServiceImplement *_user_service;
