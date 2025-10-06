@@ -1,5 +1,6 @@
 #include "../../common/etcd.hpp"
 #include "../../common/channel.hpp"
+#include "../../common/utils.hpp"
 #include "redis.hpp"
 #include "mysql.hpp"
 #include "search.hpp"
@@ -32,10 +33,27 @@ namespace MY_IM
 				_file_service_name(file_service_name),
 				_channel_manager(channel_manager)
 			{
-				Registerant::ptr _register_client;
-				std::string _file_service_name;
 			}
 			virtual ~UserServiceImplement() {}
+			bool nickname_check(const std::string &nickname) {
+				return nickname.size() < 22;
+			}
+        bool password_check(const std::string &password) {
+            if (password.size() < 6 || password.size() > 15) {
+                LOG_ERROR("密码长度不合法：{}-{}", password, password.size());
+                return false;
+            }
+            for (int i = 0; i < password.size(); i++) {
+                if (!((password[i] >= 'a' && password[i] <= 'z') ||
+                    (password[i] >= 'A' && password[i] <= 'Z') ||
+                    (password[i] >= '0' && password[i] <= '9') ||
+                    password[i] == '_' || password[i] == '-')) {
+                    	LOG_ERROR("密码字符不合法：{}", password);
+                    	return false;
+                	}
+				}
+				return true;
+			}
 			virtual void UserRegister
 			(	google::protobuf::RpcController *controller,
 				const ::MY_IM::UserRegisterReq *request,
@@ -45,7 +63,52 @@ namespace MY_IM
 			{
 				// sync call
 				brpc::ClosureGuard guard(done);
-
+				//定义一个错误处理函数，当出错的时候被调用
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+				};
+				//1. 从请求中取出昵称和密码
+				std::string nickname = request->nickname();
+				std::string password = request->password();
+				//2. 检查昵称是否合法（只能包含字母，数字，连字符-，下划线_，长度限制 3~15 之间）
+				bool ret = nickname_check(nickname);
+				if (ret == false) {
+					LOG_ERROR("{} - 用户名长度不合法！", request->request_id());
+					return err_response(request->request_id(), "用户名长度不合法！");
+				}
+				//3. 检查密码是否合法（只能包含字母，数字，长度限制 6~15 之间）
+				ret = password_check(password);
+				if (ret == false) {
+					LOG_ERROR("{} - 密码格式不合法！", request->request_id());
+					return err_response(request->request_id(), "密码格式不合法！");
+				}
+				//4. 根据昵称在数据库进行判断是否昵称已存在
+				auto user = _user_table->select_by_nickname(nickname);
+				if (user) {
+					LOG_ERROR("{} - 用户名被占用- {}！", request->request_id(), nickname);
+					return err_response(request->request_id(), "用户名被占用!");
+				}
+				//5. 向数据库新增数据
+				std::string uid = Uuid();
+				user = std::make_shared<User>(uid, nickname, password);
+				ret = _user_table->insert(user);
+				if (ret == false) {
+					LOG_ERROR("{} - Mysql数据库新增数据失败！", request->request_id());
+					return err_response(request->request_id(), "Mysql数据库新增数据失败!");
+				}
+				//6. 向 ES 服务器中新增用户信息
+				ret = _es_user->appendData(uid, "", nickname, "", "");
+				if (ret == false) {
+					LOG_ERROR("{} - ES搜索引擎新增数据失败！", request->request_id());
+					return err_response(request->request_id(), "ES搜索引擎新增数据失败！");
+				}
+				//7. 组织响应，进行成功与否的响应即可。
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 			}
 			virtual void UserLogin
 			(	google::protobuf::RpcController *controller,
@@ -55,7 +118,37 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
-
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+				};
+				//1. 从请求中取出昵称和密码
+				std::string nickname = request->nickname();
+				std::string password = request->password();
+				//2. 通过昵称获取用户信息，进行密码是否一致的判断
+				auto user = _user_table->select_by_nickname(nickname);
+				if (!user || password != user->password()) {
+					LOG_ERROR("{} - 用户名或密码错误 - {}-{}！", request->request_id(), nickname, password);
+					return err_response(request->request_id(), "用户名或密码错误!");
+				}
+				//3. 根据 redis 中的登录标记信息是否存在判断用户是否已经登录。
+				bool ret = _status_client->exists(user->user_id());
+				if (ret == true) {
+					LOG_ERROR("{} - 用户已在其他地方登录 - {}！", request->request_id(), nickname);
+					return err_response(request->request_id(), "用户已在其他地方登录!");
+				}
+				//4. 构造会话 ID，生成会话键值对，向 redis 中添加会话信息以及登录标记信息
+				std::string ssid = Uuid();
+				_session_client->append(ssid, user->user_id());
+				//5. 添加用户登录信息
+				_status_client->append(user->user_id());
+				//5. 组织响应，返回生成的会话 ID
+				response->set_request_id(request->request_id());
+				response->set_login_session_id(ssid);
+				response->set_success(true);
 			}
 
 			virtual void GetPhoneVerifyCode
@@ -66,7 +159,6 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
-
 			}
 			virtual void PhoneRegister
 			(	google::protobuf::RpcController *controller,
@@ -75,8 +167,7 @@ namespace MY_IM
 				::google::protobuf::Closure *done
 			)
 			{
-				brpc::ClosureGuard guard(done);
-
+				brpc::ClosureGuard guard(done); 
 			}
 			virtual void PhoneLogin
 			(	google::protobuf::RpcController *controller,
@@ -86,8 +177,8 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
-
 			}
+			// operators after login
 			virtual void GetUserInfo
 			(	google::protobuf::RpcController *controller,
 				const ::MY_IM::GetUserInfoReq *request,
@@ -96,6 +187,53 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+            	};
+				// 1. 从请求中取出用户 ID
+				std::string uid = request->user_id();
+				// 2. 通过用户 ID，从数据库中查询用户信息
+				auto user = _user_table->select_by_id(uid);
+				if (!user) {
+					LOG_ERROR("{} - 未找到用户信息 - {}！", request->request_id(), uid);
+					return err_response(request->request_id(), "未找到用户信息!");
+				}
+				// 3. 根据用户信息中的头像 ID，从文件服务器获取头像文件数据，组织完整用户信息
+				UserInfo *user_info = response->mutable_user_info();
+				user_info->set_user_id(user->user_id());
+				user_info->set_nickname(user->nickname());
+				user_info->set_description(user->description());
+				user_info->set_phone(user->phone());
+				
+				if (!user->avatar_id().empty()) {
+					//从信道管理对象中，获取到连接了文件管理子服务的channel
+					auto channel = _channel_manager->GetChannel(_file_service_name);
+					if (!channel) {
+						LOG_ERROR("{} - 未找到文件管理子服务节点 - {} - {}！", 
+							request->request_id(), _file_service_name, uid);
+						return err_response(request->request_id(), "未找到文件管理子服务节点!");
+					}
+					//进行文件子服务的rpc请求，进行头像文件下载
+					MY_IM::FileService_Stub stub(channel.get());
+					MY_IM::GetSingleFileReq req;
+					MY_IM::GetSingleFileRsp rsp;
+					req.set_request_id(request->request_id());
+					req.set_file_id(user->avatar_id());
+					brpc::Controller cntl;
+					stub.GetSingleFile(&cntl, &req, &rsp, nullptr);
+					if (cntl.Failed() == true || rsp.success() == false) {
+						LOG_ERROR("{} - 文件子服务调用失败：{}！", request->request_id(), cntl.ErrorText());
+						return err_response(request->request_id(), "文件子服务调用失败!");
+					}
+					user_info->set_avatar(rsp.file_data().file_content());
+				}
+				// 4. 组织响应，返回用户信息
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 
 			}
 			virtual void GetMultiUserInfo
@@ -106,6 +244,61 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
+				//1. 定义错误回调
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+				};
+				//2. 从请求中取出用户ID --- 列表
+				std::vector<std::string> uid_lists;
+				for (int i = 0; i < request->users_id_size(); i++) {
+					uid_lists.push_back(request->users_id(i));
+				}
+				//3. 从数据库进行批量用户信息查询
+				auto users = _user_table->select_multi_users(uid_lists);
+				if (users.size() != request->users_id_size()) {
+					LOG_ERROR("{} - 从数据库查找的用户信息数量不一致 {}-{}！", 
+						request->request_id(), request->users_id_size(), users.size());
+					return err_response(request->request_id(), "从数据库查找的用户信息数量不一致!");
+				}
+				//4. 批量从文件管理子服务进行文件下载
+				auto channel = _channel_manager->GetChannel(_file_service_name);
+				if (!channel) {
+					LOG_ERROR("{} - 未找到文件管理子服务节点 - {}！", request->request_id(), _file_service_name);
+					return err_response(request->request_id(), "未找到文件管理子服务节点!");
+				}
+				MY_IM::FileService_Stub stub(channel.get());
+				MY_IM::GetMultiFileReq req;
+				MY_IM::GetMultiFileRsp rsp;
+				req.set_request_id(request->request_id());
+				for (auto &user : users) {
+					if (user.avatar_id().empty()) continue;
+					req.add_file_id_list(user.avatar_id());
+				}
+				brpc::Controller cntl;
+				stub.GetMultiFile(&cntl, &req, &rsp, nullptr);
+				if (cntl.Failed() == true || rsp.success() == false) {
+					LOG_ERROR("{} - 文件子服务调用失败：{} - {}！", request->request_id(), 
+						_file_service_name, cntl.ErrorText());
+					return err_response(request->request_id(), "文件子服务调用失败!");
+				}
+				//5. 组织响应（）
+				for (auto &user : users) {
+					auto user_map = response->mutable_users_info();//本次请求要响应的用户信息map
+					auto file_map = rsp.mutable_file_data(); //这是批量文件请求响应中的map 
+					UserInfo user_info;
+					user_info.set_user_id(user.user_id());
+					user_info.set_nickname(user.nickname());
+					user_info.set_description(user.description());
+					user_info.set_phone(user.phone());
+					user_info.set_avatar((*file_map)[user.avatar_id()].file_content());
+					(*user_map)[user_info.user_id()] = user_info;
+				}
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 
 			}
 			virtual void SetUserAvatar
@@ -116,6 +309,58 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+            	};
+				// 1. 从请求中取出用户 ID 与头像数据
+				std::string uid = request->user_id();
+				// 2. 从数据库通过用户 ID 进行用户信息查询，判断用户是否存在
+				auto user = _user_table->select_by_id(uid);
+				if (!user) {
+					LOG_ERROR("{} - 未找到用户信息 - {}！", request->request_id(), uid);
+					return err_response(request->request_id(), "未找到用户信息!");
+				}
+				// 3. 上传头像文件到文件子服务，
+				auto channel = _channel_manager->GetChannel(_file_service_name);
+				if (!channel) {
+					LOG_ERROR("{} - 未找到文件管理子服务节点 - {}！", request->request_id(), _file_service_name);
+					return err_response(request->request_id(), "未找到文件管理子服务节点!");
+				}
+				MY_IM::FileService_Stub stub(channel.get());
+				MY_IM::PutSingleFileReq req;
+				MY_IM::PutSingleFileRsp rsp;
+				req.set_request_id(request->request_id());
+				req.mutable_file_data()->set_file_name("");
+				req.mutable_file_data()->set_file_size(request->avatar().size());
+				req.mutable_file_data()->set_file_content(request->avatar());
+				brpc::Controller cntl;
+				stub.PutSingleFile(&cntl, &req, &rsp, nullptr);
+				if (cntl.Failed() == true || rsp.success() == false) {
+					LOG_ERROR("{} - 文件子服务调用失败：{}！", request->request_id(), cntl.ErrorText());
+					return err_response(request->request_id(), "文件子服务调用失败!");
+				}
+				std::string avatar_id = rsp.file_info().file_id();
+				// 4. 将返回的头像文件 ID 更新到数据库中
+				user->avatar_id(avatar_id);
+				bool ret = _user_table->update(user);
+				if (ret == false) {
+					LOG_ERROR("{} - 更新数据库用户头像ID失败 ：{}！", request->request_id(), avatar_id);
+					return err_response(request->request_id(), "更新数据库用户头像ID失败!");
+				}
+				// 5. 更新 ES 服务器中用户信息
+				ret = _es_user->appendData(user->user_id(), user->phone(),
+					user->nickname(), user->description(), user->avatar_id());
+				if (ret == false) {
+					LOG_ERROR("{} - 更新搜索引擎用户头像ID失败 ：{}！", request->request_id(), avatar_id);
+					return err_response(request->request_id(), "更新搜索引擎用户头像ID失败!");
+				}
+				// 6. 组织响应，返回更新成功与否
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 
 			}
 			virtual void SetUserNickname
@@ -126,6 +371,45 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+				};
+				// 1. 从请求中取出用户 ID 与新的昵称
+				std::string uid = request->user_id();
+				std::string new_nickname = request->nickname();
+				// 2. 判断昵称格式是否正确
+				bool ret = nickname_check(new_nickname);
+				if (ret == false) {
+					LOG_ERROR("{} - 用户名长度不合法！", request->request_id());
+					return err_response(request->request_id(), "用户名长度不合法！");
+				}
+				// 3. 从数据库通过用户 ID 进行用户信息查询，判断用户是否存在
+				auto user = _user_table->select_by_id(uid);
+				if (!user) {
+					LOG_ERROR("{} - 未找到用户信息 - {}！", request->request_id(), uid);
+					return err_response(request->request_id(), "未找到用户信息!");
+				}
+				// 4. 将新的昵称更新到数据库中
+				user->nickname(new_nickname);
+				ret = _user_table->update(user);
+				if (ret == false) {
+					LOG_ERROR("{} - 更新数据库用户昵称失败 ：{}！", request->request_id(), new_nickname);
+					return err_response(request->request_id(), "更新数据库用户昵称失败!");
+				}
+				// 5. 更新 ES 服务器中用户信息
+				ret = _es_user->appendData(user->user_id(), user->phone(),
+					user->nickname(), user->description(), user->avatar_id());
+				if (ret == false) {
+					LOG_ERROR("{} - 更新搜索引擎用户昵称失败 ：{}！", request->request_id(), new_nickname);
+					return err_response(request->request_id(), "更新搜索引擎用户昵称失败!");
+				}
+				// 6. 组织响应，返回更新成功与否
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 
 			}
 			virtual void SetUserDescription
@@ -136,7 +420,39 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
-
+				auto err_response = [this, response](const std::string &rid, 
+					const std::string &errmsg) -> void {
+					response->set_request_id(rid);
+					response->set_success(false);
+					response->set_errmsg(errmsg);
+					return;
+				};
+				// 1. 从请求中取出用户 ID 与新的昵称
+				std::string uid = request->user_id();
+				std::string new_description = request->description();
+				// 3. 从数据库通过用户 ID 进行用户信息查询，判断用户是否存在
+				auto user = _user_table->select_by_id(uid);
+				if (!user) {
+					LOG_ERROR("{} - 未找到用户信息 - {}！", request->request_id(), uid);
+					return err_response(request->request_id(), "未找到用户信息!");
+				}
+				// 4. 将新的昵称更新到数据库中
+				user->description(new_description);
+				bool ret = _user_table->update(user);
+				if (ret == false) {
+					LOG_ERROR("{} - 更新数据库用户签名失败 ：{}！", request->request_id(), new_description);
+					return err_response(request->request_id(), "更新数据库用户签名失败!");
+				}
+				// 5. 更新 ES 服务器中用户信息
+				ret = _es_user->appendData(user->user_id(), user->phone(),
+					user->nickname(), user->description(), user->avatar_id());
+				if (ret == false) {
+					LOG_ERROR("{} - 更新搜索引擎用户签名失败 ：{}！", request->request_id(), new_description);
+					return err_response(request->request_id(), "更新搜索引擎用户签名失败!");
+				}
+				// 6. 组织响应，返回更新成功与否
+				response->set_request_id(request->request_id());
+				response->set_success(true);
 			}
 			virtual void SetUserPhoneNumber
 			(	google::protobuf::RpcController *controller,

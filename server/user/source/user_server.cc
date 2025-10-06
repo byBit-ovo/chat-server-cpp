@@ -14,6 +14,8 @@ DEFINE_string(etcd_host,"http://127.0.0.1:2379","etcd服务端地址");
 DEFINE_string(base_dir,"/service","服务监控根目录");
 DEFINE_string(service_name,"/user_service","用户服务名称");
 DEFINE_string(instance_name, "/user_service/instance", "当前用户服务实例名称");
+DEFINE_string(file_service, "/service/file_service", "文件管理子服务名称");
+
 
 DEFINE_string(access_addr,"127.0.0.1:9190","Rpc服务至注册中心地址");
 
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
 	auto user_server_builder = std::make_shared<MY_IM::UserServerBuilder>();
 
 	auto user_server = user_server_builder->
-	Construct_Discover_Client(FLAGS_etcd_host,FLAGS_base_dir,FLAGS_service_name).
+	Construct_Discover_Client(FLAGS_etcd_host,FLAGS_base_dir,FLAGS_file_service).
 	Construct_Es_Client({FLAGS_es_host}).
 	Construct_MySQL_Client(FLAGS_mysql_user,FLAGS_mysql_pswd,FLAGS_mysql_host,FLAGS_mysql_db,
 		FLAGS_mysql_cset,FLAGS_mysql_port,FLAGS_mysql_pool_count).
