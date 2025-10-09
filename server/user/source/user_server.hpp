@@ -1,13 +1,15 @@
-#include "../../common/etcd.hpp"
-#include "../../common/channel.hpp"
-#include "../../common/utils.hpp"
+
+#include <brpc/server.h>
+
+#include "etcd.hpp"
+#include "channel.hpp"
+#include "utils.hpp"
 #include "redis.hpp"
 #include "mysql.hpp"
 #include "search.hpp"
 #include "user.pb.h"
 #include "file.pb.h"	// call file micro server for avatar
 #include "base.pb.h"
-#include <brpc/server.h>
 #include <butil/logging.h>
 #include <gflags/gflags.h>
 
@@ -519,6 +521,7 @@ namespace MY_IM
 				// };
 				// auto client = std::make_shared<elasticlient::Client>(hosts);
 				_es_client = std::make_shared<elasticlient::Client>(hosts);
+				return *this;
 
 			}
 			ref Construct_MySQL_Client(
@@ -539,7 +542,7 @@ namespace MY_IM
 				// FLAGS_host, FLAGS_port, "", FLAGS_cset,
 				// 0, std::move(cpf));
 				_mysql_client = ODBFactory::create(user, pswd, host, db, cset, port, conn_pool_count);
-
+				return *this;
 			}
 
 			ref Construct_Redis_Client(
@@ -550,6 +553,7 @@ namespace MY_IM
 			)
 			{
 				_redis_client = RedisFactory::create(ip, port, db, keep_alive);
+				return *this;
 			}
 
 			ref Construct_Discover_Client
@@ -560,9 +564,9 @@ namespace MY_IM
 				_file_service_name = file_service_name;
 				_channel_manager = std::make_shared<ServiceManager>();
 				_channel_manager->FollowOn(file_service_name);
-				auto put_call = std::bind(ServiceManager::OnlineCall,_channel_manager.get(),
+				auto put_call = std::bind(&ServiceManager::OnlineCall,_channel_manager.get(),
 				std::placeholders::_1,std::placeholders::_2);
-				auto del_call = std::bind(ServiceManager::OfflineCall,_channel_manager.get(),
+				auto del_call = std::bind(&ServiceManager::OfflineCall,_channel_manager.get(),
 				std::placeholders::_1,std::placeholders::_2);
 				_discover_client = std::make_shared<Discoverer>(host,base_dir,put_call,del_call);
 
@@ -640,7 +644,7 @@ namespace MY_IM
 					LOG_WARNING("You should implement dicoverer、register、rpc_server、user_service before build UserServer!");
 					abort();
 				}
-				return std::make_shared<UserServer>(_rpc_server, _register_client, _user_service);
+				return std::make_shared<UserServer>(_rpc_server, _register_client, _discover_client,_user_service);
 			}
 
 		private:
