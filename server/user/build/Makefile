@@ -265,6 +265,30 @@ source/user_server.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/user_server.dir/build.make CMakeFiles/user_server.dir/source/user_server.cc.s
 .PHONY : source/user_server.cc.s
 
+test/user_client.o: test/user_client.cc.o
+.PHONY : test/user_client.o
+
+# target to build an object file
+test/user_client.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/user_client.dir/build.make CMakeFiles/user_client.dir/test/user_client.cc.o
+.PHONY : test/user_client.cc.o
+
+test/user_client.i: test/user_client.cc.i
+.PHONY : test/user_client.i
+
+# target to preprocess a source file
+test/user_client.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/user_client.dir/build.make CMakeFiles/user_client.dir/test/user_client.cc.i
+.PHONY : test/user_client.cc.i
+
+test/user_client.s: test/user_client.cc.s
+.PHONY : test/user_client.s
+
+# target to generate assembly for a file
+test/user_client.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/user_client.dir/build.make CMakeFiles/user_client.dir/test/user_client.cc.s
+.PHONY : test/user_client.cc.s
+
 user-odb.o: user-odb.cxx.o
 .PHONY : user-odb.o
 
@@ -339,6 +363,9 @@ help:
 	@echo "... source/user_server.o"
 	@echo "... source/user_server.i"
 	@echo "... source/user_server.s"
+	@echo "... test/user_client.o"
+	@echo "... test/user_client.i"
+	@echo "... test/user_client.s"
 	@echo "... user-odb.o"
 	@echo "... user-odb.i"
 	@echo "... user-odb.s"

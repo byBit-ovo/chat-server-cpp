@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/user_client.dir/base.pb.cc.o.d"
   "CMakeFiles/user_client.dir/file.pb.cc.o"
   "CMakeFiles/user_client.dir/file.pb.cc.o.d"
+  "CMakeFiles/user_client.dir/test/user_client.cc.o"
+  "CMakeFiles/user_client.dir/test/user_client.cc.o.d"
   "CMakeFiles/user_client.dir/user.pb.cc.o"
   "CMakeFiles/user_client.dir/user.pb.cc.o.d"
   "base.pb.cc"

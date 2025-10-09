@@ -32,7 +32,8 @@ namespace MY_IM
 			LOG_INFO("Info under {} directory are as follows: ",base_dir);
 			for (int i = 0; i < len; ++i)
 			{
-				LOG_INFO("key:{},value:{}", resp.key(i),resp.value(i).as_string());
+				// LOG_INFO("key:{},value:{}", resp.key(i),resp.value(i).as_string());
+				printf("%s:%s\n",resp.key(i).c_str(),resp.value(i).as_string().c_str());
 				if(_put_call) _put_call(resp.key(i),resp.value(i).as_string());
 			}
 			auto call_back = std::bind(&Discoverer::CallBack, this, std::placeholders::_1);

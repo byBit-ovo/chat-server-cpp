@@ -27,8 +27,8 @@ DEFINE_int32(rpc_threads, 1, "Rpc的IO线程数量");
 
 DEFINE_string(mysql_host, "127.0.0.1", "Mysql服务器访问地址");
 DEFINE_string(mysql_user, "root", "Mysql服务器访问用户名");
-DEFINE_string(mysql_pswd, "123456", "Mysql服务器访问密码");
-DEFINE_string(mysql_db, "bite_im", "Mysql默认库名称");
+DEFINE_string(mysql_pswd, "200533", "Mysql服务器访问密码");
+DEFINE_string(mysql_db, "IM", "Mysql默认库名称");
 DEFINE_string(mysql_cset, "utf8", "Mysql客户端字符集");
 DEFINE_int32(mysql_port, 0, "Mysql服务器访问端口");
 DEFINE_int32(mysql_pool_count, 4, "Mysql连接池最大连接数量");
@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 	Construct_MySQL_Client(FLAGS_mysql_user,FLAGS_mysql_pswd,FLAGS_mysql_host,FLAGS_mysql_db,
 		FLAGS_mysql_cset,FLAGS_mysql_port,FLAGS_mysql_pool_count).
 	Construct_Redis_Client(FLAGS_redis_host,FLAGS_redis_port,FLAGS_redis_db,FLAGS_redis_keep_alive).
-	Construct_Register(FLAGS_etcd_host,FLAGS_base_dir+FLAGS_instance_name,FLAGS_access_addr).
 	Construct_Rpc_Server(FLAGS_listen_port,FLAGS_ttl,FLAGS_rpc_threads).
+	Construct_Register(FLAGS_etcd_host,FLAGS_base_dir+FLAGS_instance_name,FLAGS_access_addr).
 	Build();
 
 	user_server->Start();

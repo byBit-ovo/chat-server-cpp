@@ -81,10 +81,24 @@ file.pb.cc: /home/qzr/gitee/Micro_communication/server/proto/file.proto
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) /home/qzr/gitee/Micro_communication/server/user/build/file.pb.cc
 	protoc --cpp_out=/home/qzr/gitee/Micro_communication/server/user/build -I /home/qzr/gitee/Micro_communication/server/user/../proto --experimental_allow_proto3_optional /home/qzr/gitee/Micro_communication/server/user/../proto/file.proto
 
+CMakeFiles/user_client.dir/test/user_client.cc.o: CMakeFiles/user_client.dir/flags.make
+CMakeFiles/user_client.dir/test/user_client.cc.o: ../test/user_client.cc
+CMakeFiles/user_client.dir/test/user_client.cc.o: CMakeFiles/user_client.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/user_client.dir/test/user_client.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/user_client.dir/test/user_client.cc.o -MF CMakeFiles/user_client.dir/test/user_client.cc.o.d -o CMakeFiles/user_client.dir/test/user_client.cc.o -c /home/qzr/gitee/Micro_communication/server/user/test/user_client.cc
+
+CMakeFiles/user_client.dir/test/user_client.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/user_client.dir/test/user_client.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/qzr/gitee/Micro_communication/server/user/test/user_client.cc > CMakeFiles/user_client.dir/test/user_client.cc.i
+
+CMakeFiles/user_client.dir/test/user_client.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/user_client.dir/test/user_client.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/qzr/gitee/Micro_communication/server/user/test/user_client.cc -o CMakeFiles/user_client.dir/test/user_client.cc.s
+
 CMakeFiles/user_client.dir/base.pb.cc.o: CMakeFiles/user_client.dir/flags.make
 CMakeFiles/user_client.dir/base.pb.cc.o: base.pb.cc
 CMakeFiles/user_client.dir/base.pb.cc.o: CMakeFiles/user_client.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/user_client.dir/base.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/user_client.dir/base.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/user_client.dir/base.pb.cc.o -MF CMakeFiles/user_client.dir/base.pb.cc.o.d -o CMakeFiles/user_client.dir/base.pb.cc.o -c /home/qzr/gitee/Micro_communication/server/user/build/base.pb.cc
 
 CMakeFiles/user_client.dir/base.pb.cc.i: cmake_force
@@ -98,7 +112,7 @@ CMakeFiles/user_client.dir/base.pb.cc.s: cmake_force
 CMakeFiles/user_client.dir/user.pb.cc.o: CMakeFiles/user_client.dir/flags.make
 CMakeFiles/user_client.dir/user.pb.cc.o: user.pb.cc
 CMakeFiles/user_client.dir/user.pb.cc.o: CMakeFiles/user_client.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/user_client.dir/user.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/user_client.dir/user.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/user_client.dir/user.pb.cc.o -MF CMakeFiles/user_client.dir/user.pb.cc.o.d -o CMakeFiles/user_client.dir/user.pb.cc.o -c /home/qzr/gitee/Micro_communication/server/user/build/user.pb.cc
 
 CMakeFiles/user_client.dir/user.pb.cc.i: cmake_force
@@ -112,7 +126,7 @@ CMakeFiles/user_client.dir/user.pb.cc.s: cmake_force
 CMakeFiles/user_client.dir/file.pb.cc.o: CMakeFiles/user_client.dir/flags.make
 CMakeFiles/user_client.dir/file.pb.cc.o: file.pb.cc
 CMakeFiles/user_client.dir/file.pb.cc.o: CMakeFiles/user_client.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/user_client.dir/file.pb.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/user_client.dir/file.pb.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/user_client.dir/file.pb.cc.o -MF CMakeFiles/user_client.dir/file.pb.cc.o.d -o CMakeFiles/user_client.dir/file.pb.cc.o -c /home/qzr/gitee/Micro_communication/server/user/build/file.pb.cc
 
 CMakeFiles/user_client.dir/file.pb.cc.i: cmake_force
@@ -125,6 +139,7 @@ CMakeFiles/user_client.dir/file.pb.cc.s: cmake_force
 
 # Object files for target user_client
 user_client_OBJECTS = \
+"CMakeFiles/user_client.dir/test/user_client.cc.o" \
 "CMakeFiles/user_client.dir/base.pb.cc.o" \
 "CMakeFiles/user_client.dir/user.pb.cc.o" \
 "CMakeFiles/user_client.dir/file.pb.cc.o"
@@ -132,13 +147,14 @@ user_client_OBJECTS = \
 # External object files for target user_client
 user_client_EXTERNAL_OBJECTS =
 
+user_client: CMakeFiles/user_client.dir/test/user_client.cc.o
 user_client: CMakeFiles/user_client.dir/base.pb.cc.o
 user_client: CMakeFiles/user_client.dir/user.pb.cc.o
 user_client: CMakeFiles/user_client.dir/file.pb.cc.o
 user_client: CMakeFiles/user_client.dir/build.make
 user_client: /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19
 user_client: CMakeFiles/user_client.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable user_client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/qzr/gitee/Micro_communication/server/user/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable user_client"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/user_client.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

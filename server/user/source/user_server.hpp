@@ -620,7 +620,7 @@ namespace MY_IM
 			{
 				if (_user_service == nullptr || _rpc_server.get() == nullptr)
 				{
-					LOG_WARNING("You should implement service and listen before registering to etcd");
+					LOG_WARNING("You should implement service and listener before registering to etcd");
 					exit(1);
 				}
 				_register_client = std::make_shared<Registerant>(etcd_host);
