@@ -429,7 +429,7 @@ namespace MY_IM
 					response->set_errmsg(errmsg);
 					return;
 				};
-				// 1. 从请求中取出用户 ID 与新的昵称
+				// 1. 从请求中取出用户 ID 与新的签名
 				std::string uid = request->user_id();
 				std::string new_description = request->description();
 				// 3. 从数据库通过用户 ID 进行用户信息查询，判断用户是否存在

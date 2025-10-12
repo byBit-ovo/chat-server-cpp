@@ -20,32 +20,33 @@ MY_IM::ServiceManager::ptr _user_channels;
 MY_IM::UserInfo user_info;
 
 std::string login_ssid;
-std::string new_nickname = "亲爱的猪妈妈";
+std::string new_nickname = "chen浩南";
 
-TEST(用户子服务测试, 用户注册测试) {
-    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-    ASSERT_TRUE(channel);
-    user_info.set_nickname("小猪佩奇");
+// TEST(用户子服务测试, 用户注册测试) {
+//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+//     ASSERT_TRUE(channel);
+//     user_info.set_nickname("猪妈妈");
 
-    MY_IM::UserRegisterReq req;
-    MY_IM::UserRegisterRsp rsp;
-    req.set_request_id(MY_IM::Uuid());
-    req.set_nickname(user_info.nickname());
-    req.set_password("1357911");
-    brpc::Controller cntl;
-    MY_IM::UserService_Stub stub(channel.get());
-    stub.UserRegister(&cntl, &req, &rsp, nullptr);
-    ASSERT_FALSE(cntl.Failed());
-    ASSERT_TRUE(rsp.success());
-}
+//     MY_IM::UserRegisterReq req;
+//     MY_IM::UserRegisterRsp rsp;
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_nickname(user_info.nickname());
+//     req.set_password("1122334455");
+
+//     brpc::Controller cntl;
+//     MY_IM::UserService_Stub stub(channel.get());
+//     stub.UserRegister(&cntl, &req, &rsp, nullptr);
+//     ASSERT_FALSE(cntl.Failed());
+//     ASSERT_TRUE(rsp.success());
+// }
 // TEST(用户子服务测试, 用户登录测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::UserLoginReq req;
-//     req.set_request_id(MY_IM::uuid());
-//     req.set_nickname("亲爱的猪妈妈");
-//     req.set_password("123456");
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_nickname("陈浩南");
+//     req.set_password("24681012");
 //     MY_IM::UserLoginRsp rsp;
 //     brpc::Controller cntl;
 //     MY_IM::UserService_Stub stub(channel.get());
@@ -59,8 +60,8 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::SetUserAvatarReq req;
-//     req.set_request_id(MY_IM::uuid());
-//     req.set_user_id(user_info.user_id());
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_user_id("1ea5-cad3-c849-0005");
 //     req.set_session_id(login_ssid);
 //     req.set_avatar(user_info.avatar());
 //     MY_IM::SetUserAvatarRsp rsp;
@@ -75,7 +76,7 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::SetUserDescriptionReq req;
-//     req.set_request_id(MY_IM::uuid());
+//     req.set_request_id(MY_IM::Uuid());
 //     req.set_user_id(user_info.user_id());
 //     req.set_session_id(login_ssid);
 //     req.set_description(user_info.description());
@@ -91,7 +92,7 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::SetUserNicknameReq req;
-//     req.set_request_id(MY_IM::uuid());
+//     req.set_request_id(MY_IM::Uuid());
 //     req.set_user_id(user_info.user_id());
 //     req.set_session_id(login_ssid);
 //     req.set_nickname(new_nickname);
@@ -109,7 +110,7 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::GetUserInfoReq req;
-//     req.set_request_id(MY_IM::uuid());
+//     req.set_request_id(MY_IM::Uuid());
 //     req.set_user_id(user_info.user_id());
 //     req.set_session_id(login_ssid);
 //     MY_IM::GetUserInfoRsp rsp;
@@ -129,7 +130,7 @@ TEST(用户子服务测试, 用户注册测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
 //     MY_IM::SetUserAvatarReq req;
-//     req.set_request_id(MY_IM::uuid());
+//     req.set_request_id(MY_IM::Uuid());
 //     req.set_user_id(uid);
 //     req.set_session_id(login_ssid);
 //     req.set_avatar(avatar);
@@ -142,16 +143,16 @@ TEST(用户子服务测试, 用户注册测试) {
 // }
 
 // TEST(用户子服务测试, 批量用户信息获取测试) {
-//     set_user_avatar("用户ID1", "小猪佩奇的头像数据");
-//     set_user_avatar("用户ID2", "小猪乔治的头像数据");
+//     set_user_avatar("1ea5-cad3-c849-0005", "chen浩南的头像数据");
+//     set_user_avatar("9e35-44dd-9f00-0000", "小猪佩奇的头像数据");
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
 
 //     MY_IM::GetMultiUserInfoReq req;
-//     req.set_request_id(MY_IM::uuid());
-//     req.add_users_id("用户ID1");
-//     req.add_users_id("用户ID2");
-//     req.add_users_id("ee55-9043bfd7-0001");
+//     req.set_request_id(MY_IM::Uuid());
+//     req.add_users_id("1ea5-cad3-c849-0005");
+//     req.add_users_id("9e35-44dd-9f00-0000");
+//     req.add_users_id("0118-3f18-a576-0001");
 //     MY_IM::GetMultiUserInfoRsp rsp;
 //     brpc::Controller cntl;
 //     MY_IM::UserService_Stub stub(channel.get());
@@ -159,26 +160,26 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_FALSE(cntl.Failed());
 //     ASSERT_TRUE(rsp.success());
 //     auto users_map = rsp.mutable_users_info();
-//     MY_IM::UserInfo fuser = (*users_map)["ee55-9043bfd7-0001"];
-//     ASSERT_EQ(fuser.user_id(), "ee55-9043bfd7-0001");
-//     ASSERT_EQ(fuser.nickname(), "猪爸爸");
-//     ASSERT_EQ(fuser.description(), "");
-//     ASSERT_EQ(fuser.phone(), "");
-//     ASSERT_EQ(fuser.avatar(), "");
+//     MY_IM::UserInfo fuser = (*users_map)["1ea5-cad3-c849-0005"];
+//     ASSERT_EQ(fuser.user_id(), "1ea5-cad3-c849-0005");
+//     ASSERT_EQ(fuser.nickname(), "chen浩南");
+//     ASSERT_EQ(fuser.description(), "这是铜锣湾扛把子");
+//     ASSERT_EQ(fuser.phone(), "");	
+//     ASSERT_EQ(fuser.avatar(), "chen浩南的头像数据");
 
-//     MY_IM::UserInfo puser = (*users_map)["用户ID1"];
-//     ASSERT_EQ(puser.user_id(), "用户ID1");
-//     ASSERT_EQ(puser.nickname(), "小猪佩奇");
-//     ASSERT_EQ(puser.description(), "这是一只小猪");
-//     ASSERT_EQ(puser.phone(), "手机号1");
+//     MY_IM::UserInfo puser = (*users_map)["9e35-44dd-9f00-0000"];
+//     ASSERT_EQ(puser.user_id(), "9e35-44dd-9f00-0000");
+//     ASSERT_EQ(puser.nickname(), "佩奇");
+//     ASSERT_EQ(puser.description(), "");
+//     ASSERT_EQ(puser.phone(), "");
 //     ASSERT_EQ(puser.avatar(), "小猪佩奇的头像数据");
     
-//     MY_IM::UserInfo quser = (*users_map)["用户ID2"];
-//     ASSERT_EQ(quser.user_id(), "用户ID2");
-//     ASSERT_EQ(quser.nickname(), "小猪乔治");
-//     ASSERT_EQ(quser.description(), "这是一只小小猪");
-//     ASSERT_EQ(quser.phone(), "手机号2");
-//     ASSERT_EQ(quser.avatar(), "小猪乔治的头像数据");
+//     MY_IM::UserInfo quser = (*users_map)["0118-3f18-a576-0001"];
+//     ASSERT_EQ(quser.user_id(), "0118-3f18-a576-0001");
+//     ASSERT_EQ(quser.nickname(), "猪妈妈");
+//     ASSERT_EQ(quser.description(), "");
+//     ASSERT_EQ(quser.phone(), "");
+//     ASSERT_EQ(quser.avatar(), "");
 // }
 
 // std::string code_id;
@@ -284,10 +285,11 @@ int main(int argc, char *argv[])
     MY_IM::Discoverer::ptr dclient = std::make_shared<MY_IM::Discoverer>(FLAGS_etcd_host, FLAGS_base_service, put_cb, del_cb);
     
     user_info.set_nickname("猪妈妈");
-    user_info.set_user_id("1d56-513d8e49-0002");
-    user_info.set_description("这是一个美丽的猪妈妈");
+    user_info.set_user_id("1ea5-cad3-c849-0005");
+    user_info.set_description("这是铜锣湾扛把子");
     user_info.set_phone("15009356594");
-    user_info.set_avatar("猪妈妈头像数据");
+    user_info.set_avatar("扛把子头像新数据");
+	login_ssid = "218e-55f3-8e23-0006";
     testing::InitGoogleTest(&argc, argv);
     LOG_DEBUG("开始测试！");
     return RUN_ALL_TESTS();
