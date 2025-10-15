@@ -242,31 +242,31 @@ std::string new_nickname = "chen浩南";
 //     ASSERT_TRUE(rsp.success());
 //     std::cout << "手机登录会话ID：" << rsp.login_session_id() << std::endl;
 // }
-// TEST(用户子服务测试, 手机号设置) {
-//     std::this_thread::sleep_for(std::chrono::seconds(10));
-//     get_code();
-//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-//     ASSERT_TRUE(channel);
+TEST(用户子服务测试, 手机号设置) {
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+    get_code();
+    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+    ASSERT_TRUE(channel);
 
-//     MY_IM::SetUserPhoneNumberReq req;
-//     req.set_request_id(MY_IM::uuid());
-//     std::cout << "手机号设置时，输入用户ID：" << std::endl;
-//     std::string user_id;
-//     std::cin >> user_id;
-//     req.set_user_id(user_id);
-//     req.set_phone_number("18888888888");
-//     req.set_phone_verify_code_id(code_id);
-//     std::cout << "手机号设置时，输入验证码：" << std::endl;
-//     std::string code;
-//     std::cin >> code;
-//     req.set_phone_verify_code(code);
-//     MY_IM::SetUserPhoneNumberRsp rsp;
-//     brpc::Controller cntl;
-//     MY_IM::UserService_Stub stub(channel.get());
-//     stub.SetUserPhoneNumber(&cntl, &req, &rsp, nullptr);
-//     ASSERT_FALSE(cntl.Failed());
-//     ASSERT_TRUE(rsp.success());
-// }
+    MY_IM::SetUserPhoneNumberReq req;
+    req.set_request_id(MY_IM::Uuid());
+    std::cout << "手机号设置时，输入用户ID：" << std::endl;
+    std::string user_id;
+    std::cin >> user_id;
+    req.set_user_id(user_id);
+    req.set_phone_number("18888888888");
+    req.set_phone_verify_code_id(code_id);
+    std::cout << "手机号设置时，输入验证码：" << std::endl;
+    std::string code;
+    std::cin >> code;
+    req.set_phone_verify_code(code);
+    MY_IM::SetUserPhoneNumberRsp rsp;
+    brpc::Controller cntl;
+    MY_IM::UserService_Stub stub(channel.get());
+    stub.SetUserPhoneNumber(&cntl, &req, &rsp, nullptr);
+    ASSERT_FALSE(cntl.Failed());
+    ASSERT_TRUE(rsp.success());
+}
 
 int main(int argc, char *argv[])
 {
