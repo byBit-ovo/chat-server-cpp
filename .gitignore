@@ -1,0 +1,29 @@
+# == CMake 自动生成的文件 ==
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Ninja 或 Make 构建产物
+build/
+out/
+bin/
+obj/
+
+# 生成的工程文件
+*.cmake
+*.ninja
+
+# 编译产物
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.dylib
+
+# IDE 生成的垃圾
+.vscode/
+.idea/
+
+# 编译数据库（如果你不想提交的话）
+compile_commands.json

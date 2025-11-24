@@ -1,8 +1,0 @@
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/speech_server.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/speech_client.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/edit_cache.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/rebuild_cache.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/list_install_components.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/install.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/install/local.dir
-/home/qzr/gitee/Micro_communication/server/speech/build/CMakeFiles/install/strip.dir
