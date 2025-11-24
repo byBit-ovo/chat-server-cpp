@@ -90,6 +90,7 @@
 		"scoped_allocator": "cpp",
 		"stdfloat": "cpp",
 		"syncstream": "cpp",
-		"valarray": "cpp"
+		"valarray": "cpp",
+		"*.inc": "cpp"
 	}
 }
