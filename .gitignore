@@ -8,6 +8,7 @@ build/
 out/
 bin/
 obj/
+test/
 
 # 生成的工程文件
 *.cmake

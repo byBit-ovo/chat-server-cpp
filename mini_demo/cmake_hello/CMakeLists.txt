@@ -6,15 +6,17 @@ project(helloWorld)
 
 # build target
 add_executable(main main.cc)
+add_executable(testAdd test.cc)
 
 # add test
 include(CTest)
-add_test(
-	Name testAdd
-	COMMAND main
-)
+add_test(Case_add testAdd)
 
 # install local
 include(GNUInstallDirs)
 install(TARGETS main)
+
+# pack
+include(CPack)
+message()
 
