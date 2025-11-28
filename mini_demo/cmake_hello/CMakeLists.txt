@@ -2,7 +2,11 @@
 cmake_minimum_required(VERSION 3.18)
 
 # project name
-project(helloWorld)
+project(
+	helloWorld
+	VERSION 1.2.3
+	LANGUAGES CXX
+)
 
 # build target
 add_executable(main main.cc)
@@ -18,5 +22,4 @@ install(TARGETS main)
 
 # pack
 include(CPack)
-message()
-
+include(sub/sub.cmake)
