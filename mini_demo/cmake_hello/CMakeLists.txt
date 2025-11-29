@@ -8,6 +8,7 @@ project(
 	LANGUAGES CXX
 )
 
+file(GLOB)
 # build target
 add_executable(main main.cc)
 add_executable(testAdd test.cc)
@@ -23,3 +24,5 @@ install(TARGETS main)
 # pack
 include(CPack)
 include(sub/sub.cmake)
+message("PREFIX: " ${CMAKE_INSTALL_PREFIX})
+add_subdirectory()
