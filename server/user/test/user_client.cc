@@ -182,22 +182,22 @@ std::string new_nickname = "chen浩南";
 //     ASSERT_EQ(quser.avatar(), "");
 // }
 
-// std::string code_id;
-// void get_code() {
-//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-//     ASSERT_TRUE(channel);
+std::string code_id;
+void get_code() {
+    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+    ASSERT_TRUE(channel);
 
-//     MY_IM::PhoneVerifyCodeReq req;
-//     req.set_request_id(MY_IM::uuid());
-//     req.set_phone_number(user_info.phone());
-//     MY_IM::PhoneVerifyCodeRsp rsp;
-//     brpc::Controller cntl;
-//     MY_IM::UserService_Stub stub(channel.get());
-//     stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
-//     ASSERT_FALSE(cntl.Failed());
-//     ASSERT_TRUE(rsp.success());
-//     code_id = rsp.verify_code_id();
-// }
+    MY_IM::PhoneVerifyCodeReq req;
+    req.set_request_id(MY_IM::Uuid());
+    req.set_phone_number(user_info.phone());
+    MY_IM::PhoneVerifyCodeRsp rsp;
+    brpc::Controller cntl;
+    MY_IM::UserService_Stub stub(channel.get());
+    stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
+    ASSERT_FALSE(cntl.Failed());
+    ASSERT_TRUE(rsp.success());
+    code_id = rsp.verify_code_id();
+}
 
 
 // TEST(用户子服务测试, 手机号注册) {
