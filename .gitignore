@@ -21,6 +21,12 @@ test/
 *.dll
 *.exe
 *.dylib
+server
+client
+speech_server
+speech_client
+user_client
+user_server
 
 # IDE 生成的垃圾
 .vscode/
