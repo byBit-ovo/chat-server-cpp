@@ -1,6 +1,5 @@
 #pragma once
 #include "mysql.hpp"
-#include "chat_session_member.hxx"
 #include "chat_session_member-odb.hxx"
 
 namespace MY_IM

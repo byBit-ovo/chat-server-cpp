@@ -59,7 +59,7 @@
 //   }
 // }
 #include <gflags/gflags.h>
-#include "../common/esclient.hpp"
+#include "../../server/common/essearch.hpp"
 #include <memory>
 DEFINE_bool(enable_debug,true,"是否启用调试模式，格式:true/false");
 DEFINE_bool(log_mode,false,"false: 调试模式, true: 发布模式");
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	// {
 	// 	LOG_ERROR("Creating index fail");
 	// }
-	EsInsert inserter(client,"test_user","_doc");
+	MY_IM::ESInsert inserter(client,"test_user","_doc");
 	// inserter.append("key1","value1").
 	// append("key2","value2").
 	// append("key3","value3").
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 	append("9.10.2","v2").
 	append("9.10.3","v3").
 	insert("0002");
-	EsSearch searcher(client,"test_user","_doc");
+	MY_IM::ESSearch searcher(client,"test_user","_doc");
 	auto sret = searcher.append_should_match("9.10.1.keyword","v1").search();
 	if(sret.empty() || sret.isArray() == false)
 	{
