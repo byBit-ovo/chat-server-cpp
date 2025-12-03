@@ -7,4 +7,4 @@ response = client.models.generate_content(
     contents="God",
 )
 
-print(response.text)
+print(response.text)#hello
