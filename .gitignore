@@ -27,6 +27,8 @@ speech_server
 speech_client
 user_client
 user_server
+file_server
+file_client
 
 # IDE 生成的垃圾
 .vscode/
