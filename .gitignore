@@ -23,7 +23,7 @@ test/
 *.dylib
 server
 client
-speech_server
+speech_server	
 speech_client
 user_client
 user_server
