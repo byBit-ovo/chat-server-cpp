@@ -9,6 +9,7 @@ out/
 bin/
 obj/
 test/
+third/
 
 # 生成的工程文件
 *.cmake
@@ -21,6 +22,10 @@ test/
 *.dll
 *.exe
 *.dylib
+*.pb.h
+*.pb.cc
+*.pb.cpp
+*odb.*
 server
 client
 speech_server	

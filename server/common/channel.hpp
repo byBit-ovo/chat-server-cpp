@@ -128,7 +128,7 @@ class ServiceManager
 			channels->RemoveChannel(host);
 			LOG_INFO("A host({}) is offline service({})",host,service_name);
 		}
-		// this method to discoverer's put_call
+		// this method is to discoverer's put_call
 		void OnlineCall(const std::string &service_instance,const std::string &host)
 		{
 			// LOG_DEBUG("OnlineCall...");

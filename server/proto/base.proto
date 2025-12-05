@@ -58,13 +58,13 @@ message SpeechMessageInfo {
 } 
 
 message MessageContent {
- MessageType message_type = 1; //消息类型
- oneof msg_content {
- StringMessageInfo string_message = 2;//文字消息
- FileMessageInfo file_message = 3;//文件消息
- SpeechMessageInfo speech_message = 4;//语音消息
- ImageMessageInfo image_message = 5;//图片消息
- };
+	MessageType message_type = 1; //消息类型
+	oneof msg_content {
+		StringMessageInfo string_message = 2;//文字消息
+		FileMessageInfo file_message = 3;//文件消息
+		SpeechMessageInfo speech_message = 4;//语音消息
+		ImageMessageInfo image_message = 5;//图片消息
+	};
 } 
 //消息结构
 message MessageInfo {
