@@ -26,7 +26,6 @@ third/
 *.pb.cc
 *.pb.cpp
 *odb.*
-server
 client
 speech_server	
 speech_client
