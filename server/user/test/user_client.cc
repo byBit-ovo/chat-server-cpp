@@ -22,23 +22,23 @@ MY_IM::UserInfo user_info;
 std::string login_ssid;
 std::string new_nickname = "chen浩南";
 
-// TEST(用户子服务测试, 用户注册测试) {
-//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-//     ASSERT_TRUE(channel);
-//     user_info.set_nickname("猪妈妈");
+TEST(用户子服务测试, 用户注册测试) {
+    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+    ASSERT_TRUE(channel);
+    user_info.set_nickname("Tom");
 
-//     MY_IM::UserRegisterReq req;
-//     MY_IM::UserRegisterRsp rsp;
-//     req.set_request_id(MY_IM::Uuid());
-//     req.set_nickname(user_info.nickname());
-//     req.set_password("1122334455");
+    MY_IM::UserRegisterReq req;
+    MY_IM::UserRegisterRsp rsp;
+    req.set_request_id(MY_IM::Uuid());
+    req.set_nickname(user_info.nickname());
+    req.set_password("1122334455");
 
-//     brpc::Controller cntl;
-//     MY_IM::UserService_Stub stub(channel.get());
-//     stub.UserRegister(&cntl, &req, &rsp, nullptr);
-//     ASSERT_FALSE(cntl.Failed());
-//     ASSERT_TRUE(rsp.success());
-// }
+    brpc::Controller cntl;
+    MY_IM::UserService_Stub stub(channel.get());
+    stub.UserRegister(&cntl, &req, &rsp, nullptr);
+    ASSERT_FALSE(cntl.Failed());
+    ASSERT_TRUE(rsp.success());
+}
 // TEST(用户子服务测试, 用户登录测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
