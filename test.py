@@ -20,3 +20,8 @@ for n in (-1, 2, 4, 6, 10):
 	print(bisect.bisect_right(nums,n), end = ' ')
 	# 0, 2, 6, 9, 10
 print()
+
+nums.sort()
+a = reversed(nums)
+print(type(a))
+print(a+1)

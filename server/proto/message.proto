@@ -13,12 +13,12 @@ package MY_IM;
 import "base.proto";
 option cc_generic_services = true;
 message GetHistoryMsgReq {
- string request_id = 1;
- string chat_session_id = 2;
- int64 start_time = 3;
- int64 over_time = 4;
- optional string user_id = 5;
- optional string session_id = 6;
+ 	string request_id = 1;
+ 	string chat_session_id = 2;
+ 	int64 start_time = 3;
+ 	int64 over_time = 4;
+ 	optional string user_id = 5;
+ 	optional string session_id = 6;
 } 
 message GetHistoryMsgRsp {
  string request_id = 1;

@@ -83,7 +83,7 @@ namespace MY_IM
 			std::string uuid = Uuid();
 			std::string file_path = _files_dir + uuid;
 			// Because there may be mutiple clients uploading files with the same name,
-			// the server use uuid to store, instead of file name
+			// the server use uuid instead of file nameto store 
 			bool ret = WriteFile(file_path,request->file_data().file_content());
 			if(ret == false){
 				response->set_success(false);
