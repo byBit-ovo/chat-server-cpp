@@ -83,7 +83,7 @@ namespace MY_IM
 				LOG_ERROR("索引序列化失败！");
 				return false;
 			}
-			LOG_DEBUG("{}", body);
+			// LOG_DEBUG("{}", body);
 			// 2. 发起搜索请求
 			try
 			{
@@ -131,7 +131,7 @@ namespace MY_IM
 				LOG_ERROR("索引序列化失败！");
 				return false;
 			}
-			LOG_DEBUG("{}", body);
+			// LOG_DEBUG("{}", body);
 			// 2. 发起搜索请求
 			try
 			{

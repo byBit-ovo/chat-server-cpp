@@ -71,12 +71,10 @@ target_link_libraries(${target} -lgflags
     -lamqpcpp -lev)
 
 
-# set(trans_user_client "trans_user_client")
-# set(trans_user_files ${CMAKE_CURRENT_SOURCE_DIR}/test/user_client.cc)
-# add_executable(${trans_user_client} ${trans_user_files} ${proto_srcs})
-# add_executable(${trans_user_client}  ${proto_srcs})
-# target_link_libraries(${trans_user_client} -pthread -lgtest -lgflags -lspdlog -lfmt -lbrpc -lssl -lcrypto -lprotobuf -lleveldb -letcd-cpp-api -lcpprest -lcurl /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19)
-# target_link_libraries(${trans_user_client} -pthread -lgtest -lgflags -lspdlog -lfmt -lbrpc -lssl -lcrypto -lprotobuf -lleveldb -letcd-cpp-api -lcpprest -lcurl /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19)
+set(trans_user_client "trans_user_client")
+set(trans_user_files ${CMAKE_CURRENT_SOURCE_DIR}/test/user_client.cc)
+add_executable(${trans_user_client} ${trans_user_files} ${proto_srcs})
+target_link_libraries(${trans_user_client} -pthread -lgtest -lgflags -lspdlog -lfmt -lbrpc -lssl -lcrypto -lprotobuf -lleveldb -letcd-cpp-api -lcpprest -lcurl /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19)
 
 set(transmite_client "transmite_client")
 set(transmite_files ${CMAKE_CURRENT_SOURCE_DIR}/test/transmite_client.cc)

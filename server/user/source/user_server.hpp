@@ -1,6 +1,5 @@
 
 #include <brpc/server.h>
-
 #include "etcd.hpp"
 #include "channel.hpp"
 #include "utils.hpp"
@@ -12,7 +11,7 @@
 #include "base.pb.h"
 #include <butil/logging.h>
 #include <gflags/gflags.h>
-
+#include "mysql_user.hpp"
 namespace MY_IM
 {
 	class UserServiceImplement : public UserService
@@ -311,6 +310,7 @@ namespace MY_IM
 			)
 			{
 				brpc::ClosureGuard guard(done);
+				LOG_INFO("Set Use Avatar service is invoked");
 				auto err_response = [this, response](const std::string &rid, 
 					const std::string &errmsg) -> void {
 					response->set_request_id(rid);

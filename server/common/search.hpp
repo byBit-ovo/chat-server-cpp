@@ -54,7 +54,7 @@ namespace MY_IM
 				LOG_ERROR("用户数据插入/更新失败!");
 				return false;
 			}
-			LOG_INFO("用户数据新增/更新成功!");
+			// LOG_INFO("用户数据新增/更新成功!");
 			return true;
 		}
 		std::vector<User> search(const std::string &key, const std::vector<std::string> &uid_list)
@@ -108,7 +108,7 @@ namespace MY_IM
 				LOG_INFO("消息信息索引创建失败!");
 				return false;
 			}
-			LOG_INFO("消息信息索引创建成功!");
+			// LOG_INFO("消息信息索引创建成功!");
 			return true;
 		}
 		bool appendData(const std::string &user_id,

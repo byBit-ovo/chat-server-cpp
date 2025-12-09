@@ -21,7 +21,11 @@ for n in (-1, 2, 4, 6, 10):
 	# 0, 2, 6, 9, 10
 print()
 
-nums.sort()
-a = reversed(nums)
-print(type(a))
-print(a+1)
+example = {
+	"hello": 3,
+	"auuu": 4
+}
+
+print(sorted(example, key=lambda x: x[1]))
+
+

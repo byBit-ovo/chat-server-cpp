@@ -55,22 +55,22 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(rsp.success());
 //     login_ssid = rsp.login_session_id();
 // }
-// TEST(用户子服务测试, 用户头像设置测试) {
-//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-//     ASSERT_TRUE(channel);
+TEST(用户子服务测试, 用户头像设置测试) {
+    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+    ASSERT_TRUE(channel);
 
-//     MY_IM::SetUserAvatarReq req;
-//     req.set_request_id(MY_IM::Uuid());
-//     req.set_user_id("1ea5-cad3-c849-0005");
-//     req.set_session_id(login_ssid);
-//     req.set_avatar(user_info.avatar());
-//     MY_IM::SetUserAvatarRsp rsp;
-//     brpc::Controller cntl;
-//     MY_IM::UserService_Stub stub(channel.get());
-//     stub.SetUserAvatar(&cntl, &req, &rsp, nullptr);
-//     ASSERT_FALSE(cntl.Failed());
-//     ASSERT_TRUE(rsp.success());
-// }
+    MY_IM::SetUserAvatarReq req;
+    req.set_request_id(MY_IM::Uuid());
+    req.set_user_id("1ea5-cad3-c849-0005");
+    req.set_session_id(login_ssid);
+    req.set_avatar(user_info.avatar());
+    MY_IM::SetUserAvatarRsp rsp;
+    brpc::Controller cntl;
+    MY_IM::UserService_Stub stub(channel.get());
+    stub.SetUserAvatar(&cntl, &req, &rsp, nullptr);
+    ASSERT_FALSE(cntl.Failed());
+    ASSERT_TRUE(rsp.success());
+}
 // TEST(用户子服务测试, 用户签名设置测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);

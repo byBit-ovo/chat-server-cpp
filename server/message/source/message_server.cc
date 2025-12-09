@@ -22,14 +22,14 @@ DEFINE_string(es_host, "http://127.0.0.1:9200/", "ES搜索引擎服务器URL");
 
 DEFINE_string(mysql_host, "127.0.0.1", "Mysql服务器访问地址");
 DEFINE_string(mysql_user, "root", "Mysql服务器访问用户名");
-DEFINE_string(mysql_pswd, "123456", "Mysql服务器访问密码");
-DEFINE_string(mysql_db, "MY_IM", "Mysql默认库名称");
+DEFINE_string(mysql_pswd, "200533", "Mysql服务器访问密码");
+DEFINE_string(mysql_db, "IM", "Mysql默认库名称");
 DEFINE_string(mysql_cset, "utf8", "Mysql客户端字符集");
 DEFINE_int32(mysql_port, 0, "Mysql服务器访问端口");
 DEFINE_int32(mysql_pool_count, 4, "Mysql连接池最大连接数量");
 
-DEFINE_string(mq_user, "root", "消息队列服务器访问用户名");
-DEFINE_string(mq_pswd, "123456", "消息队列服务器访问密码");
+DEFINE_string(mq_user, "qzr", "消息队列服务器访问用户名");
+DEFINE_string(mq_pswd, "200533", "消息队列服务器访问密码");
 DEFINE_string(mq_host, "127.0.0.1:5672", "消息队列服务器访问地址");
 DEFINE_string(mq_msg_exchange, "msg_exchange", "持久化消息的发布交换机名称");
 DEFINE_string(mq_msg_queue, "msg_queue", "持久化消息的发布队列名称");

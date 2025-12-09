@@ -78,7 +78,7 @@ namespace MY_IM
 			::google::protobuf::Closure *done) override
 		{
 			brpc::ClosureGuard guard(done);
-
+			LOG_INFO("Put Single File service is invoked");
 			response->set_request_id(request->request_id());
 			std::string uuid = Uuid();
 			std::string file_path = _files_dir + uuid;

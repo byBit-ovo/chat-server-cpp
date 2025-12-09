@@ -97,7 +97,7 @@ message GetMultiUserInfoRsp {
  string request_id = 1;
  bool success = 2;
  string errmsg = 3; 
- map<string, UserInfo>users_info = 4;
+ map<string, UserInfo> users_info = 4;
 } 
 //----------------------------
 //用户头像修改 
