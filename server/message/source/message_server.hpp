@@ -78,7 +78,7 @@ namespace MY_IM
 				return err_response(rid, "批量文件数据下载失败!");
 			}
 			// 4. 统计所有消息的发送者用户ID，从用户子服务进行批量用户信息获取
-			std::unordered_set<std::string> user_id_lists; // {猪爸爸吧， 祝妈妈，猪爸爸吧，祝爸爸}
+			std::unordered_set<std::string> user_id_lists; // {猪爸爸，猪妈妈，猪爸爸，猪爸爸}
 			for (const auto &msg : msg_lists)
 			{
 				user_id_lists.insert(msg.user_id());
