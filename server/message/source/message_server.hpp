@@ -284,7 +284,7 @@ namespace MY_IM
 		// receive messages from MqServer and store them in ES, MySQL, file_service
 		void onMessage(const char *body, size_t sz)
 		{
-			LOG_DEBUG("收到新消息，进行存储处理！");
+			LOG_INFO("收到新消息，进行存储处理！");
 			// 1. 取出序列化的消息内容，进行反序列化
 			MY_IM::MessageInfo message;
 			bool ret = message.ParseFromArray(body, sz);

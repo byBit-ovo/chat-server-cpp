@@ -129,7 +129,7 @@ namespace MY_IM
 				LOG_ERROR("消息数据插入/更新失败!");
 				return false;
 			}
-			LOG_INFO("消息数据新增/更新成功!");
+			LOG_INFO("消息数据新增/更新成功!chat_session_id: {}", chat_session_id);
 			return true;
 		}
 		bool remove(const std::string &mid)
