@@ -147,6 +147,7 @@ namespace MY_IM
 				LOG_ERROR("新增数据 {} 失败: {}", body, e.what());
 				return false;
 			}
+			LOG_INFO("Es_insert success !");
 			return true;
 		}
 

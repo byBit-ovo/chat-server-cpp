@@ -108,7 +108,7 @@ namespace MY_IM
 				LOG_INFO("消息信息索引创建失败!");
 				return false;
 			}
-			// LOG_INFO("消息信息索引创建成功!");
+			LOG_INFO("消息信息索引创建成功!");
 			return true;
 		}
 		bool appendData(const std::string &user_id,
