@@ -10,22 +10,28 @@ import bisect
 
 # print(response.text)#hello
 
-nums = [1,2,3,4,4,4,5,6,6,7]
+# nums = [1,2,3,4,4,4,5,6,6,7]
 
-for n in (-1, 2, 4, 6, 10):
-	print(bisect.bisect_left(nums, n),end = ' ')
-	# 0, 1, 3, 7, 10
-print()
-for n in (-1, 2, 4, 6, 10):
-	print(bisect.bisect_right(nums,n), end = ' ')
-	# 0, 2, 6, 9, 10
-print()
+# for n in (-1, 2, 4, 6, 10):
+# 	print(bisect.bisect_left(nums, n),end = ' ')
+# 	# 0, 1, 3, 7, 10
+# print()
+# for n in (-1, 2, 4, 6, 10):
+# 	print(bisect.bisect_right(nums,n), end = ' ')
+# 	# 0, 2, 6, 9, 10
+# print()
 
-example = {
-	"hello": 3,
-	"auuu": 4
-}
+# example = {
+# 	"hello": 3,
+# 	"auuu": 4
+# }
 
-print(sorted(example, key=lambda x: x[1]))
+# print(sorted(example, key=lambda x: x[1]))
 
 
+s = 'this is a sentence'
+s += 'a'
+s.pop()
+s.pop()
+s.pop()
+print(s)
