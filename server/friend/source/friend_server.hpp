@@ -2,7 +2,7 @@
 #include <brpc/server.h>
 #include <butil/logging.h>
 
-#include "data_es.hpp"      // es数据管理客户端封装
+#include "search.hpp"      // es数据管理客户端封装
 #include "mysql_chat_session_member.hpp"      // mysql数据管理客户端封装
 #include "mysql_chat_session.hpp"      // mysql数据管理客户端封装
 #include "mysql_relation.hpp"      // mysql数据管理客户端封装
@@ -37,8 +37,8 @@ class FriendServiceImpl : public MY_IM::FriendService {
             _mm_channels(channel_manager){}
         ~FriendServiceImpl(){}
         virtual void GetFriendList(::google::protobuf::RpcController* controller,
-            const ::MY_IMI::GetFriendListReq* request,
-            ::MY_IMI::GetFriendListRsp* response,
+            const ::MY_IM::GetFriendListReq* request,
+            ::MY_IM::GetFriendListRsp* response,
             ::google::protobuf::Closure* done) {
             brpc::ClosureGuard rpc_guard(done);
             //1. 定义错误回调
@@ -137,7 +137,7 @@ class FriendServiceImpl : public MY_IM::FriendService {
                 return err_response(rid, "已经申请过对方好友！");
             }
             //4. 向好友申请表中，新增申请信息
-            std::string eid = uuid();
+            std::string eid = Uuid();
             FriendApply ev(eid, uid, pid);
             ret = _mysql_apply->insert(ev);
             if (ret == false) {
@@ -188,7 +188,7 @@ class FriendServiceImpl : public MY_IM::FriendService {
                     LOG_ERROR("{}- 新增好友关系信息-{}-{}！", rid, uid, pid);
                     return err_response(rid, "新增好友关系信息!");
                 }
-                cssid = uuid();
+                cssid = Uuid();
                 ChatSession cs(cssid, "", ChatSessionType::SINGLE);
                 ret = _mysql_chat_session->insert(cs);
                 if (ret == false) {
@@ -367,7 +367,7 @@ class FriendServiceImpl : public MY_IM::FriendService {
             std::string cssname = request->chat_session_name();
             
             //2. 生成会话ID，向数据库添加会话信息，添加会话成员信息
-            std::string cssid = uuid();
+            std::string cssid = Uuid();
             ChatSession cs(cssid, cssname, ChatSessionType::GROUP);
             bool ret = _mysql_chat_session->insert(cs);
             if (ret == false) {
@@ -432,7 +432,7 @@ class FriendServiceImpl : public MY_IM::FriendService {
     private:
         bool GetRecentMsg(const std::string &rid, 
             const std::string &cssid, MessageInfo &msg) {
-            auto channel = _mm_channels->choose(_message_service_name);
+            auto channel = _mm_channels->GetChannel(_message_service_name);
             if (!channel) {
                 LOG_ERROR("{} - 获取消息子服务信道失败！！", rid);
                 return false;
@@ -462,7 +462,7 @@ class FriendServiceImpl : public MY_IM::FriendService {
         bool GetUserInfo(const std::string &rid, 
             const std::unordered_set<std::string> &uid_list,
             std::unordered_map<std::string, UserInfo> &user_list) {
-            auto channel = _mm_channels->choose(_user_service_name);
+            auto channel = _mm_channels->GetChannel(_user_service_name);
             if (!channel) {
                 LOG_ERROR("{} - 获取用户子服务信道失败！！", rid);
                 return false;
@@ -508,7 +508,7 @@ class FriendServer {
     public:
         using ptr = std::shared_ptr<FriendServer>;
         FriendServer(const Discoverer::ptr service_discoverer, 
-            const Regiterant::ptr &reg_client,
+            const Registerant::ptr &reg_client,
             const std::shared_ptr<elasticlient::Client> &es_client,
             const std::shared_ptr<odb::core::database> &mysql_client,
             const std::shared_ptr<brpc::Server> &server):
@@ -524,7 +524,7 @@ class FriendServer {
         }
     private:
         Discoverer::ptr _service_discoverer;
-        Regiterant::ptr _Regiterant_client;
+        Registerant::ptr _registry_client;
         std::shared_ptr<elasticlient::Client> _es_client;
         std::shared_ptr<odb::core::database> _mysql_client;
         std::shared_ptr<brpc::Server> _rpc_server;
@@ -559,15 +559,15 @@ class FriendServerBuilder {
             _mm_channels->FollowOn(message_service_name);
             LOG_DEBUG("设置用户子服务为需添加管理的子服务：{}", user_service_name);
             LOG_DEBUG("设置消息子服务为需添加管理的子服务：{}", message_service_name);
-            auto put_cb = std::bind(&ServiceManager::onServiceOnline, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
-            auto del_cb = std::bind(&ServiceManager::onServiceOffline, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
+            auto put_cb = std::bind(&ServiceManager::OnlineCall, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
+            auto del_cb = std::bind(&ServiceManager::OfflineCall, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
             _service_discoverer = std::make_shared<Discoverer>(reg_host, base_service_name, put_cb, del_cb);
         }
         //用于构造服务注册客户端对象
         void make_registry_object(const std::string &reg_host,
             const std::string &service_name,
             const std::string &access_host) {
-            _registry_client = std::make_shared<Regiterant>(reg_host);
+            _registry_client = std::make_shared<Registerant>(reg_host);
             _registry_client->Register(service_name, access_host);
         }
         void make_rpc_server(uint16_t port, int32_t timeout, uint8_t num_threads) {
@@ -622,7 +622,7 @@ class FriendServerBuilder {
             return server;
         }
     private:
-        Regiterant::ptr _registry_client;
+        Registerant::ptr _registry_client;
 
         std::shared_ptr<elasticlient::Client> _es_client;
         std::shared_ptr<odb::core::database> _mysql_client;

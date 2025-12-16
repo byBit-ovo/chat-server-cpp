@@ -65,8 +65,7 @@ message FriendAddProcessRsp {
  string request_id = 1;
  bool success = 2;
  string errmsg = 3; 
- // 同意后会创建会话，向网关返回会话信息，用于通知双方会话的建立，这
-个字段客户端不需要关注
+ // 同意后会创建会话，向网关返回会话信息，用于通知双方会话的建立，这个字段客户端不需要关注
  optional string new_session_id = 4; 
 } 
 //--------------------------------------
@@ -127,8 +126,7 @@ message ChatSessionCreateRsp {
  string request_id = 1;
  bool success = 2;
  string errmsg = 3; 
- //这个字段属于后台之间的数据，给前端回复的时候不需要这个字段，会话信
-息通过通知进行发送
+ //这个字段属于后台之间的数据，给前端回复的时候不需要这个字段，会话信息通过通知进行发送
  optional ChatSessionInfo chat_session_info = 4; 
 } 
 //--------------------------------------
@@ -154,6 +152,5 @@ service FriendService {
  rpc GetChatSessionList(GetChatSessionListReq) returns (GetChatSessionListRsp);
  rpc ChatSessionCreate(ChatSessionCreateReq) returns (ChatSessionCreateRsp);
  rpc GetChatSessionMember(GetChatSessionMemberReq) returns (GetChatSessionMemberRsp);
- rpc GetPendingFriendEventList(GetPendingFriendEventListReq) 
-returns (GetPendingFriendEventListRsp);
+ rpc GetPendingFriendEventList(GetPendingFriendEventListReq) returns (GetPendingFriendEventListRsp);
 }

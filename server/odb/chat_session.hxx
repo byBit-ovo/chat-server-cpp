@@ -46,9 +46,10 @@ namespace MY_IM
 	};
 
 // 这里条件必须是指定条件：  css::chat_session_type==1 && csm1.user_id=uid && csm2.user_id != csm1.user_id
-#pragma db view object(ChatSession = css)                                             \
+#pragma db view \
+	object(ChatSession = css)                                             \
 	object(ChatSessionMember = csm1 : css::_chat_session_id == csm1::_session_id)     \
-		object(ChatSessionMember = csm2 : css::_chat_session_id == csm2::_session_id) \
+	object(ChatSessionMember = csm2 : css::_chat_session_id == csm2::_session_id) \
 			query((?))
 	struct SingleChatSession
 	{
@@ -59,7 +60,8 @@ namespace MY_IM
 	};
 
 // 这里条件必须是指定条件：  css::chat_session_type==2 && csm.user_id=uid
-#pragma db view object(ChatSession = css)                                       \
+#pragma db view \
+	object(ChatSession = css)                                       \
 	object(ChatSessionMember = csm : css::_chat_session_id == csm::_session_id) \
 		query((?))
 	struct GroupChatSession
