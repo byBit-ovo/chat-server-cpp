@@ -26,7 +26,6 @@ namespace MY_IM {
                     typedef odb::query<ChatSession> query;
                     typedef odb::result<ChatSession> result;
                     _db->erase_query<ChatSession>(query::chat_session_id == ssid);
-
                     typedef odb::query<ChatSessionMember> mquery;
                     _db->erase_query<ChatSessionMember>(mquery::session_id == ssid);
                     trans.commit();

@@ -63,7 +63,7 @@ namespace MY_IM
 			Json::Value json_user = ESSearch(_es_client, "user")
 										.append_should_match("phone.keyword", key)
 										.append_should_match("user_id.keyword", key)
-										.append_should_match("nickktkname", key)
+										.append_should_match("nickname", key)
 										.append_must_not_terms("user_id.keyword", uid_list) // 过滤掉自己和已经为好友的用户
 										.search();
 			if (json_user.isArray() == false)

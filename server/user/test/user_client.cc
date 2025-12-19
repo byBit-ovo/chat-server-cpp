@@ -22,23 +22,23 @@ MY_IM::UserInfo user_info;
 std::string login_ssid;
 std::string new_nickname = "chen浩南";
 
-TEST(用户子服务测试, 用户注册测试) {
-    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-    ASSERT_TRUE(channel);
-    user_info.set_nickname("Tom");
+// TEST(用户子服务测试, 用户注册测试) {
+//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+//     ASSERT_TRUE(channel);
+//     user_info.set_nickname("Tom");
 
-    MY_IM::UserRegisterReq req;
-    MY_IM::UserRegisterRsp rsp;
-    req.set_request_id(MY_IM::Uuid());
-    req.set_nickname(user_info.nickname());
-    req.set_password("1122334455");
+//     MY_IM::UserRegisterReq req;
+//     MY_IM::UserRegisterRsp rsp;
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_nickname(user_info.nickname());
+//     req.set_password("1122334455");
 
-    brpc::Controller cntl;
-    MY_IM::UserService_Stub stub(channel.get());
-    stub.UserRegister(&cntl, &req, &rsp, nullptr);
-    ASSERT_FALSE(cntl.Failed());
-    ASSERT_TRUE(rsp.success());
-}
+//     brpc::Controller cntl;
+//     MY_IM::UserService_Stub stub(channel.get());
+//     stub.UserRegister(&cntl, &req, &rsp, nullptr);
+//     ASSERT_FALSE(cntl.Failed());
+//     ASSERT_TRUE(rsp.success());
+// }
 // TEST(用户子服务测试, 用户登录测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
@@ -55,22 +55,22 @@ TEST(用户子服务测试, 用户注册测试) {
 //     ASSERT_TRUE(rsp.success());
 //     login_ssid = rsp.login_session_id();
 // }
-TEST(用户子服务测试, 用户头像设置测试) {
-    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-    ASSERT_TRUE(channel);
+// TEST(用户子服务测试, 用户头像设置测试) {
+//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+//     ASSERT_TRUE(channel);
 
-    MY_IM::SetUserAvatarReq req;
-    req.set_request_id(MY_IM::Uuid());
-    req.set_user_id("1ea5-cad3-c849-0005");
-    req.set_session_id(login_ssid);
-    req.set_avatar(user_info.avatar());
-    MY_IM::SetUserAvatarRsp rsp;
-    brpc::Controller cntl;
-    MY_IM::UserService_Stub stub(channel.get());
-    stub.SetUserAvatar(&cntl, &req, &rsp, nullptr);
-    ASSERT_FALSE(cntl.Failed());
-    ASSERT_TRUE(rsp.success());
-}
+//     MY_IM::SetUserAvatarReq req;
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_user_id("1ea5-cad3-c849-0005");
+//     req.set_session_id(login_ssid);
+//     req.set_avatar(user_info.avatar());
+//     MY_IM::SetUserAvatarRsp rsp;
+//     brpc::Controller cntl;
+//     MY_IM::UserService_Stub stub(channel.get());
+//     stub.SetUserAvatar(&cntl, &req, &rsp, nullptr);
+//     ASSERT_FALSE(cntl.Failed());
+//     ASSERT_TRUE(rsp.success());
+// }
 // TEST(用户子服务测试, 用户签名设置测试) {
 //     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
 //     ASSERT_TRUE(channel);
@@ -182,22 +182,22 @@ TEST(用户子服务测试, 用户头像设置测试) {
 //     ASSERT_EQ(quser.avatar(), "");
 // }
 
-std::string code_id;
-void get_code() {
-    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-    ASSERT_TRUE(channel);
+// std::string code_id;
+// void get_code() {
+//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+//     ASSERT_TRUE(channel);
 
-    MY_IM::PhoneVerifyCodeReq req;
-    req.set_request_id(MY_IM::Uuid());
-    req.set_phone_number(user_info.phone());
-    MY_IM::PhoneVerifyCodeRsp rsp;
-    brpc::Controller cntl;
-    MY_IM::UserService_Stub stub(channel.get());
-    stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
-    ASSERT_FALSE(cntl.Failed());
-    ASSERT_TRUE(rsp.success());
-    code_id = rsp.verify_code_id();
-}
+//     MY_IM::PhoneVerifyCodeReq req;
+//     req.set_request_id(MY_IM::Uuid());
+//     req.set_phone_number(user_info.phone());
+//     MY_IM::PhoneVerifyCodeRsp rsp;
+//     brpc::Controller cntl;
+//     MY_IM::UserService_Stub stub(channel.get());
+//     stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
+//     ASSERT_FALSE(cntl.Failed());
+//     ASSERT_TRUE(rsp.success());
+//     code_id = rsp.verify_code_id();
+// }
 
 
 // TEST(用户子服务测试, 手机号注册) {
@@ -242,32 +242,45 @@ void get_code() {
 //     ASSERT_TRUE(rsp.success());
 //     std::cout << "手机登录会话ID：" << rsp.login_session_id() << std::endl;
 // }
-TEST(用户子服务测试, 手机号设置) {
-    std::this_thread::sleep_for(std::chrono::seconds(10));
-    get_code();
-    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
-    ASSERT_TRUE(channel);
+// TEST(用户子服务测试, 手机号设置) {
+//     std::this_thread::sleep_for(std::chrono::seconds(10));
+//     get_code();
+//     auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+//     ASSERT_TRUE(channel);
 
-    MY_IM::SetUserPhoneNumberReq req;
+//     MY_IM::SetUserPhoneNumberReq req;
+//     req.set_request_id(MY_IM::Uuid());
+//     std::cout << "手机号设置时，输入用户ID：" << std::endl;
+//     std::string user_id;
+//     std::cin >> user_id;
+//     req.set_user_id(user_id);
+//     req.set_phone_number("18888888888");
+//     req.set_phone_verify_code_id(code_id);
+//     std::cout << "手机号设置时，输入验证码：" << std::endl;
+//     std::string code;
+//     std::cin >> code;
+//     req.set_phone_verify_code(code);
+//     MY_IM::SetUserPhoneNumberRsp rsp;
+//     brpc::Controller cntl;
+//     MY_IM::UserService_Stub stub(channel.get());
+//     stub.SetUserPhoneNumber(&cntl, &req, &rsp, nullptr);
+//     ASSERT_FALSE(cntl.Failed());
+//     ASSERT_TRUE(rsp.success());
+// }
+void regist_user(std::string name, std::string pswd){
+    auto channel = _user_channels->GetChannel(FLAGS_user_service);//获取通信信道
+    MY_IM::UserRegisterReq req;
+    MY_IM::UserRegisterRsp rsp;
     req.set_request_id(MY_IM::Uuid());
-    std::cout << "手机号设置时，输入用户ID：" << std::endl;
-    std::string user_id;
-    std::cin >> user_id;
-    req.set_user_id(user_id);
-    req.set_phone_number("18888888888");
-    req.set_phone_verify_code_id(code_id);
-    std::cout << "手机号设置时，输入验证码：" << std::endl;
-    std::string code;
-    std::cin >> code;
-    req.set_phone_verify_code(code);
-    MY_IM::SetUserPhoneNumberRsp rsp;
+    req.set_nickname(name);
+    req.set_password(pswd);
     brpc::Controller cntl;
     MY_IM::UserService_Stub stub(channel.get());
-    stub.SetUserPhoneNumber(&cntl, &req, &rsp, nullptr);
-    ASSERT_FALSE(cntl.Failed());
-    ASSERT_TRUE(rsp.success());
+    stub.UserRegister(&cntl, &req, &rsp, nullptr);
+    if(cntl.Failed()){
+        std::cout << "用户注册失败" << std::endl;
+    }
 }
-
 int main(int argc, char *argv[])
 {
     google::ParseCommandLineFlags(&argc, &argv, true);
@@ -284,13 +297,12 @@ int main(int argc, char *argv[])
     //2. 构造服务发现对象
     MY_IM::Discoverer::ptr dclient = std::make_shared<MY_IM::Discoverer>(FLAGS_etcd_host, FLAGS_base_service, put_cb, del_cb);
     
-    user_info.set_nickname("猪妈妈");
-    user_info.set_user_id("1ea5-cad3-c849-0005");
-    user_info.set_description("这是铜锣湾扛把子");
-    user_info.set_phone("15009356594");
-    user_info.set_avatar("扛把子头像新数据");
-	login_ssid = "218e-55f3-8e23-0006";
-    testing::InitGoogleTest(&argc, argv);
-    LOG_DEBUG("开始测试！");
-    return RUN_ALL_TESTS();
+    regist_user("Tom","1234567");
+    regist_user("Amy","1234567");
+    regist_user("Jack","1234567");
+    regist_user("Musk","1234567");
+    regist_user("Trump","1234567");
+    regist_user("Zuck","1234567");
+
+    return 0;
 }

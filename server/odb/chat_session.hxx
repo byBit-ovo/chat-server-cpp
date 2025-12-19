@@ -11,7 +11,8 @@ namespace MY_IM
 	enum class ChatSessionType
 	{
 		SINGLE = 1,
-		GROUP = 2
+		GROUP = 2,
+		CHANNEL = 3 // TODO
 	};
 
 #pragma db object table("chat_session")
