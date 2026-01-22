@@ -6,6 +6,7 @@ namespace MY_IM {
 typedef websocketpp::server<websocketpp::config::asio> server_t;
 // 连接的类型： server_t::connection_ptr
 
+
 class Connection {
     public:
         struct Client {
