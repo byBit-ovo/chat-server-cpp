@@ -38,3 +38,5 @@ file_client
 .idea/
 
 compile_commands.json
+
+.cache/
