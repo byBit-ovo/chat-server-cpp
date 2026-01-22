@@ -34,9 +34,7 @@ user_server
 file_server
 file_client
 
-# IDE 生成的垃圾
 .vscode/
 .idea/
 
-# 编译数据库（如果你不想提交的话）
 compile_commands.json

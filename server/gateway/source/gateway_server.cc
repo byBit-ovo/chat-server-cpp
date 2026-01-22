@@ -35,5 +35,6 @@ int main(int argc, char *argv[])
     gsb.make_server_object(FLAGS_websocket_listen_port, FLAGS_http_listen_port);
     auto server = gsb.build();
     server->start();
+
     return 0;
 }
