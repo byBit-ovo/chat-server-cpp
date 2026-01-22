@@ -19,8 +19,9 @@ namespace MY_IM
 		using ptr = std::shared_ptr<Discoverer>;
 		Discoverer() = default;
 		Discoverer(const std::string &host, const std::string &base_dir,
-				   const call_back_t &put_call, const call_back_t &del_call) : _client(std::make_shared<etcd::Client>(host)),
-																			   _put_call(put_call), _del_call(del_call)
+				   const call_back_t &put_call, const call_back_t &del_call) : 
+				   _client(std::make_shared<etcd::Client>(host)),
+					_put_call(put_call), _del_call(del_call)
 		{
 			auto resp = _client->ls(base_dir).get();
 			if (resp.is_ok() == false)

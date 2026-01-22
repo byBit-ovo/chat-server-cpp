@@ -61,4 +61,5 @@ class Connection {
         std::unordered_map<std::string, server_t::connection_ptr> _uid_connections;
         std::unordered_map<server_t::connection_ptr, Client> _conn_clients;
 };
+
 }
