@@ -1,4 +1,5 @@
 #include "mysql.hpp"
+#include <sstream>
 // #include "message.hxx"
 #include "message-odb.hxx"
 
@@ -94,6 +95,49 @@ namespace MY_IM
 				LOG_ERROR("获取区间消息失败:{}-{}:{}-{}！", ssid,
 						  boost::posix_time::to_simple_string(stime),
 						  boost::posix_time::to_simple_string(etime), e.what());
+			}
+			return res;
+		}
+		std::vector<Message> after_sessions(const std::vector<std::string> &session_ids,
+											long long after_id,
+											int count)
+		{
+			std::vector<Message> res;
+			if (session_ids.empty())
+			{
+				return res;
+			}
+			if (count <= 0)
+			{
+				count = 100;
+			}
+			try
+			{
+				odb::transaction trans(_db->begin());
+				std::stringstream cond;
+				cond << "session_id in (";
+				for (size_t i = 0; i < session_ids.size(); i++)
+				{
+					if (i > 0)
+					{
+						cond << ",";
+					}
+					cond << "'" << session_ids[i] << "'";
+				}
+				cond << ") ";
+				cond << "and CAST(message_id AS UNSIGNED) > " << after_id << " ";
+				cond << "order by CAST(message_id AS UNSIGNED) asc ";
+				cond << "limit " << count;
+				odb::result<Message> r(_db->query<Message>(cond.str()));
+				for (auto i = r.begin(); i != r.end(); ++i)
+				{
+					res.push_back(*i);
+				}
+				trans.commit();
+			}
+			catch (std::exception &e)
+			{
+				LOG_ERROR("获取同步消息失败:{}-{}！", after_id, e.what());
 			}
 			return res;
 		}

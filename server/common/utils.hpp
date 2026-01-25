@@ -1,40 +1,46 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
+// #include <sstream>
 #include <string>
-#include <atomic>
-#include <random>
-#include <iomanip>
+// #include <atomic>
+// #include <random>
+// #include <iomanip>
 #include "logger.hpp"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace MY_IM
 {
 	// 单机情况确实很随机，但是多台主机就不一定了，如何解决这个问题？
 	// 因为主机mac地址是唯一的，为了区分不同主机，给uuid加一个mac地址就好
-	std::string Uuid()
-	{
-		// 生成一个由16位随机字符组成的字符串作为唯一ID
-		//  1. 生成6个0~255之间的随机数字(1字节-转换为16进制字符)--总共生成12位16进制字符
-		// 0x010203040506
-		std::random_device rd;									 // 实例化设备随机数对象-用于生成设备随机数
-		std::mt19937 generator(rd());							 // 以设备随机数为种子，实例化伪随机数对象
-		std::uniform_int_distribution<int> distribution(0, 255); // 限定数据范围
+	// std::string Uuid()
+	// {
+	// 	// 生成一个由16位随机字符组成的字符串作为唯一ID
+	// 	//  1. 生成6个0~255之间的随机数字(1字节-转换为16进制字符)--总共生成12位16进制字符
+	// 	// 0x010203040506
+	// 	std::random_device rd;									 // 实例化设备随机数对象-用于生成设备随机数
+	// 	std::mt19937 generator(rd());							 // 以设备随机数为种子，实例化伪随机数对象
+	// 	std::uniform_int_distribution<int> distribution(0, 255); // 限定数据范围
 
-		std::stringstream ss;
-		for (int i = 0; i < 6; i++)
-		{
-			if (i == 2 || i == 4)
-				ss << "-";
-			ss << std::setw(2) << std::setfill('0') << std::hex << distribution(generator);
-		}
-		ss << "-";
-		// 2. 通过一个静态变量生成一个2字节的编号数字--生成4位16进制数字字符
-		static std::atomic<short> idx(0);
-		short tmp = idx.fetch_add(1);
-		ss << std::setw(4) << std::setfill('0') << std::hex << tmp;
-		return ss.str();
+	// 	std::stringstream ss;
+	// 	for (int i = 0; i < 6; i++)
+	// 	{
+	// 		if (i == 2 || i == 4)
+	// 			ss << "-";
+	// 		ss << std::setw(2) << std::setfill('0') << std::hex << distribution(generator);
+	// 	}
+	// 	ss << "-";
+	// 	// 2. 通过一个静态变量生成一个2字节的编号数字--生成4位16进制数字字符
+	// 	static std::atomic<short> idx(0);
+	// 	short tmp = idx.fetch_add(1);
+	// 	ss << std::setw(4) << std::setfill('0') << std::hex << tmp;
+	// 	return ss.str();
+	// }
+	std::string Uuid(){
+		boost::uuids::uuid uuid = boost::uuids::random_generator()();
+		return boost::uuids::to_string(uuid);
 	}
-
 	bool ReadFile(const std::string &filename, std::string &body)
 	{
 		// 实现读取一个文件的所有数据，放入body中

@@ -4,6 +4,7 @@
 
 #include "search.hpp"		 // es数据管理客户端封装
 #include "mysql_message.hpp" // mysql数据管理客户端封装
+#include "mysql_chat_session_member.hpp"
 #include "etcd.hpp"			 // 服务注册模块封装
 #include "logger.hpp"		 // 日志模块封装
 #include "utils.hpp"		 // 基础工具接口
@@ -27,6 +28,7 @@ namespace MY_IM
 			const std::string &file_service_name,
 			const std::string &user_service_name) : _es_message(std::make_shared<ESMessage>(es_client)),
 													_mysql_message(std::make_shared<MessageTable>(mysql_client)),
+													_mysql_session_member(std::make_shared<ChatSessionMemeberTable>(mysql_client)),
 													_file_service_name(file_service_name),
 													_user_service_name(user_service_name),
 													_mm_channels(channel_manager)
@@ -186,6 +188,107 @@ namespace MY_IM
 				return err_response(rid, "批量用户数据获取失败!");
 			}
 			// 5. 组织响应
+			response->set_request_id(rid);
+			response->set_success(true);
+			for (const auto &msg : msg_lists)
+			{
+				auto message_info = response->add_msg_list();
+				message_info->set_message_id(msg.message_id());
+				message_info->set_chat_session_id(msg.session_id());
+				message_info->set_timestamp(boost::posix_time::to_time_t(msg.create_time()));
+				message_info->mutable_sender()->CopyFrom(user_lists[msg.user_id()]);
+				switch (msg.message_type())
+				{
+				case MessageType::STRING:
+					message_info->mutable_message()->set_message_type(MessageType::STRING);
+					message_info->mutable_message()->mutable_string_message()->set_content(msg.content());
+					break;
+				case MessageType::IMAGE:
+					message_info->mutable_message()->set_message_type(MessageType::IMAGE);
+					message_info->mutable_message()->mutable_image_message()->set_file_id(msg.file_id());
+					message_info->mutable_message()->mutable_image_message()->set_image_content(file_data_lists[msg.file_id()]);
+					break;
+				case MessageType::FILE:
+					message_info->mutable_message()->set_message_type(MessageType::FILE);
+					message_info->mutable_message()->mutable_file_message()->set_file_id(msg.file_id());
+					message_info->mutable_message()->mutable_file_message()->set_file_size(msg.file_size());
+					message_info->mutable_message()->mutable_file_message()->set_file_name(msg.file_name());
+					message_info->mutable_message()->mutable_file_message()->set_file_contents(file_data_lists[msg.file_id()]);
+					break;
+				case MessageType::SPEECH:
+					message_info->mutable_message()->set_message_type(MessageType::SPEECH);
+					message_info->mutable_message()->mutable_speech_message()->set_file_id(msg.file_id());
+					message_info->mutable_message()->mutable_speech_message()->set_file_contents(file_data_lists[msg.file_id()]);
+					break;
+				default:
+					LOG_ERROR("消息类型错误！！");
+					return;
+				}
+			}
+			return;
+		}
+		virtual void GetSyncMsg(::google::protobuf::RpcController *controller,
+								const ::MY_IM::GetSyncMsgReq *request,
+								::MY_IM::GetSyncMsgRsp *response,
+								::google::protobuf::Closure *done)
+		{
+			brpc::ClosureGuard rpc_guard(done);
+			auto err_response = [this, response](const std::string &rid,
+												 const std::string &errmsg) -> void
+			{
+				response->set_request_id(rid);
+				response->set_success(false);
+				response->set_errmsg(errmsg);
+				return;
+			};
+			std::string rid = request->request_id();
+			std::string uid = request->user_id();
+			long long cur_max_id = request->cur_max_message_id();
+			int msg_count = request->msg_count();
+			if (uid.empty())
+			{
+				return err_response(rid, "用户ID为空");
+			}
+			auto session_ids = _mysql_session_member->sessions(uid);
+			if (session_ids.empty())
+			{
+				response->set_request_id(rid);
+				response->set_success(true);
+				return;
+			}
+			auto msg_lists = _mysql_message->after_sessions(session_ids, cur_max_id, msg_count);
+			if (msg_lists.empty())
+			{
+				response->set_request_id(rid);
+				response->set_success(true);
+				return;
+			}
+			std::unordered_set<std::string> file_id_lists;
+			for (const auto &msg : msg_lists)
+			{
+				if (msg.file_id().empty())
+					continue;
+				file_id_lists.insert(msg.file_id());
+			}
+			std::unordered_map<std::string, std::string> file_data_lists;
+			bool ret = _GetFile(rid, file_id_lists, file_data_lists);
+			if (ret == false)
+			{
+				LOG_ERROR("{} 批量文件数据下载失败！", rid);
+				return err_response(rid, "批量文件数据下载失败!");
+			}
+			std::unordered_set<std::string> user_id_lists;
+			for (const auto &msg : msg_lists)
+			{
+				user_id_lists.insert(msg.user_id());
+			}
+			std::unordered_map<std::string, UserInfo> user_lists;
+			ret = _GetUser(rid, user_id_lists, user_lists);
+			if (ret == false)
+			{
+				LOG_ERROR("{} 批量用户数据获取失败！", rid);
+				return err_response(rid, "批量用户数据获取失败!");
+			}
 			response->set_request_id(rid);
 			response->set_success(true);
 			for (const auto &msg : msg_lists)
@@ -468,6 +571,7 @@ namespace MY_IM
 	private:
 		ESMessage::ptr _es_message;
 		MessageTable::ptr _mysql_message;
+		ChatSessionMemeberTable::ptr _mysql_session_member;
 		// 这边是rpc调用客户端相关对象
 		std::string _user_service_name;
 		std::string _file_service_name;

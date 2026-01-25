@@ -53,9 +53,23 @@ message MsgSearchRsp {
  string errmsg = 3; 
  repeated MessageInfo msg_list = 4;
 } 
+message GetSyncMsgReq {
+ string request_id = 1;
+ int64 cur_max_message_id = 2; // 设备端维护的最大消息ID
+ int64 msg_count = 3; // 拉取数量上限
+ optional string user_id = 4;
+ optional string session_id = 5;
+}
+message GetSyncMsgRsp {
+ string request_id = 1;
+ bool success = 2;
+ string errmsg = 3;
+ repeated MessageInfo msg_list = 4;
+}
 service MsgStorageService {
  	rpc GetHistoryMsg(GetHistoryMsgReq) returns  (GetHistoryMsgRsp);
 	rpc GetRecentMsg(GetRecentMsgReq) returns (GetRecentMsgRsp);
  	rpc MsgSearch(MsgSearchReq) returns (MsgSearchRsp);
+	rpc GetSyncMsg(GetSyncMsgReq) returns (GetSyncMsgRsp);
  
 }

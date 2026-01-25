@@ -2,9 +2,7 @@
 #include "etcd.hpp"     // 服务注册模块封装
 #include "logger.hpp"   // 日志模块封装
 #include "channel.hpp"  // 信道管理模块封装
-
 #include "connection.hpp"
-
 #include "user.pb.h"  // protobuf框架代码
 #include "base.pb.h"  // protobuf框架代码
 #include "file.pb.h"  // protobuf框架代码
@@ -13,6 +11,7 @@
 #include "message.pb.h"  // protobuf框架代码
 #include "speech.pb.h"  // protobuf框架代码
 #include "transmite.pb.h"  // protobuf框架代码
+#include "channel.pb.h"  // protobuf框架代码
 #include "notify.pb.h"
 
 #include "httplib.h"
@@ -41,12 +40,15 @@ namespace MY_IM{
     #define MSG_GET_RANGE           "/service/message_storage/get_history"
     #define MSG_GET_RECENT          "/service/message_storage/get_recent"
     #define MSG_KEY_SEARCH          "/service/message_storage/search_history"
+    #define MSG_GET_SYNC           "/service/message_storage/get_sync"
     #define NEW_MESSAGE             "/service/message_transmit/new_message"
     #define FILE_GET_SINGLE         "/service/file/get_single_file"
     #define FILE_GET_MULTI          "/service/file/get_multi_file"
     #define FILE_PUT_SINGLE         "/service/file/put_single_file"
     #define FILE_PUT_MULTI          "/service/file/put_multi_file"
     #define SPEECH_RECOGNITION      "/service/speech/recognition"
+    #define CHANNEL_CREATE          "/service/channel/create"
+    #define CHANNEL_NEW_MESSAGE     "/service/channel/new_message"
     class GatewayServer {
         public:
             using ptr = std::shared_ptr<GatewayServer>;
@@ -61,7 +63,8 @@ namespace MY_IM{
                 const std::string speech_service_name,
                 const std::string message_service_name,
                 const std::string transmite_service_name,
-                const std::string friend_service_name)
+                const std::string friend_service_name,
+                const std::string channel_service_name)
                 :_redis_session(std::make_shared<SessionClient>(redis_client)),
                 _redis_status(std::make_shared<StatusClient>(redis_client)),
                 _mm_channels(channels),
@@ -72,6 +75,7 @@ namespace MY_IM{
                 _message_service_name(message_service_name),
                 _transmite_service_name(transmite_service_name),
                 _friend_service_name(friend_service_name),
+                _channel_service_name(channel_service_name),
                 _connections(std::make_shared<Connection>()){
                 
                 _ws_server.set_access_channels(websocketpp::log::alevel::none);
@@ -85,11 +89,11 @@ namespace MY_IM{
                 _ws_server.listen(websocket_port);
                 _ws_server.start_accept();
 
-                _http_server.Post(GET_PHONE_VERIFY_CODE  , (httplib::Server::Handler)std::bind(&GatewayServer::GetPhoneVerifyCode         , this, std::placeholders::_1, std::placeholders::_2));
+                // _http_server.Post(GET_PHONE_VERIFY_CODE  , (httplib::Server::Handler)std::bind(&GatewayServer::GetPhoneVerifyCode         , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(USERNAME_REGISTER      , (httplib::Server::Handler)std::bind(&GatewayServer::UserRegister               , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(USERNAME_LOGIN         , (httplib::Server::Handler)std::bind(&GatewayServer::UserLogin                  , this, std::placeholders::_1, std::placeholders::_2));
-                _http_server.Post(PHONE_REGISTER         , (httplib::Server::Handler)std::bind(&GatewayServer::PhoneRegister              , this, std::placeholders::_1, std::placeholders::_2));
-                _http_server.Post(PHONE_LOGIN            , (httplib::Server::Handler)std::bind(&GatewayServer::PhoneLogin                 , this, std::placeholders::_1, std::placeholders::_2));
+                // _http_server.Post(PHONE_REGISTER         , (httplib::Server::Handler)std::bind(&GatewayServer::PhoneRegister              , this, std::placeholders::_1, std::placeholders::_2));
+                // _http_server.Post(PHONE_LOGIN            , (httplib::Server::Handler)std::bind(&GatewayServer::PhoneLogin                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(GET_USERINFO           , (httplib::Server::Handler)std::bind(&GatewayServer::GetUserInfo                , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(SET_USER_AVATAR        , (httplib::Server::Handler)std::bind(&GatewayServer::SetUserAvatar              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(SET_USER_NICKNAME      , (httplib::Server::Handler)std::bind(&GatewayServer::SetUserNickname            , this, std::placeholders::_1, std::placeholders::_2));
@@ -107,12 +111,15 @@ namespace MY_IM{
                 _http_server.Post(MSG_GET_RANGE          , (httplib::Server::Handler)std::bind(&GatewayServer::GetHistoryMsg              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_RECENT         , (httplib::Server::Handler)std::bind(&GatewayServer::GetRecentMsg               , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_KEY_SEARCH         , (httplib::Server::Handler)std::bind(&GatewayServer::MsgSearch                  , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(MSG_GET_SYNC           , (httplib::Server::Handler)std::bind(&GatewayServer::GetSyncMsg                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(NEW_MESSAGE            , (httplib::Server::Handler)std::bind(&GatewayServer::NewMessage                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(FILE_GET_SINGLE        , (httplib::Server::Handler)std::bind(&GatewayServer::GetSingleFile              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(FILE_GET_MULTI         , (httplib::Server::Handler)std::bind(&GatewayServer::GetMultiFile               , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(FILE_PUT_SINGLE        , (httplib::Server::Handler)std::bind(&GatewayServer::PutSingleFile              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(FILE_PUT_MULTI         , (httplib::Server::Handler)std::bind(&GatewayServer::PutMultiFile               , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(SPEECH_RECOGNITION     , (httplib::Server::Handler)std::bind(&GatewayServer::SpeechRecognition          , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(CHANNEL_CREATE         , (httplib::Server::Handler)std::bind(&GatewayServer::CreateChannel             , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(CHANNEL_NEW_MESSAGE    , (httplib::Server::Handler)std::bind(&GatewayServer::SendChannelMessage        , this, std::placeholders::_1, std::placeholders::_2));
                 _http_thread = std::thread([this, http_port](){
                     _http_server.listen("0.0.0.0", http_port);
                 });
@@ -135,10 +142,15 @@ namespace MY_IM{
                     LOG_WARNING("长连接断开，未找到长连接对应的客户端信息！");
                     return ;
                 }
-                //1. 移除登录会话信息
+                //1. 移除登录状态信息（支持按设备维度）
+                auto device_type = _redis_session->device_type(ssid);
+                if (device_type) {
+                    _redis_status->remove(uid + ":" + *device_type);
+                } else {
+                    _redis_status->remove(uid);
+                }
+                //2. 移除登录会话信息
                 _redis_session->remove(ssid);
-                //2. 移除登录状态信息
-                _redis_status->remove(uid);
                 //3. 移除长连接管理数据
                 _connections->remove(conn);
                 LOG_DEBUG("{} {} {} 长连接断开，清理缓存数据!", ssid, uid, (size_t)conn.get());
@@ -177,36 +189,36 @@ namespace MY_IM{
                 LOG_DEBUG("新增长连接管理：{}-{}-{}", ssid, *uid, (size_t)conn.get());
                 keepAlive(conn);
             }
-            void GetPhoneVerifyCode(const httplib::Request &request, httplib::Response &response) {
-                //1. 取出http请求正文，将正文进行反序列化
-                PhoneVerifyCodeReq req;
-                PhoneVerifyCodeRsp rsp;
-                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-                    rsp.set_success(false);
-                    rsp.set_errmsg(errmsg);
-                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-                };
-                bool ret = req.ParseFromString(request.body);
-                if (ret == false) {
-                    LOG_ERROR("获取短信验证码请求正文反序列化失败！");
-                    return err_response("获取短信验证码请求正文反序列化失败！");
-                }
-                //2. 将请求转发给用户子服务进行业务处理
-                auto channel = _mm_channels->GetChannel(_user_service_name);
-                if (!channel) {
-                    LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-                    return err_response("未找到可提供业务处理的用户子服务节点！");
-                }
-                MY_IM::UserService_Stub stub(channel.get());
-                brpc::Controller cntl;
-                stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
-                if (cntl.Failed()) {
-                    LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-                    return err_response("用户子服务调用失败！");
-                }
-                //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            }
+            // void GetPhoneVerifyCode(const httplib::Request &request, httplib::Response &response) {
+            //     //1. 取出http请求正文，将正文进行反序列化
+            //     PhoneVerifyCodeReq req;
+            //     PhoneVerifyCodeRsp rsp;
+            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+            //         rsp.set_success(false);
+            //         rsp.set_errmsg(errmsg);
+            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            //     };
+            //     bool ret = req.ParseFromString(request.body);
+            //     if (ret == false) {
+            //         LOG_ERROR("获取短信验证码请求正文反序列化失败！");
+            //         return err_response("获取短信验证码请求正文反序列化失败！");
+            //     }
+            //     //2. 将请求转发给用户子服务进行业务处理
+            //     auto channel = _mm_channels->GetChannel(_user_service_name);
+            //     if (!channel) {
+            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
+            //         return err_response("未找到可提供业务处理的用户子服务节点！");
+            //     }
+            //     MY_IM::UserService_Stub stub(channel.get());
+            //     brpc::Controller cntl;
+            //     stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
+            //     if (cntl.Failed()) {
+            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
+            //         return err_response("用户子服务调用失败！");
+            //     }
+            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
+            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            // }
             void UserRegister(const httplib::Request &request, httplib::Response &response) {
                 //1. 取出http请求正文，将正文进行反序列化
                 UserRegisterReq req;
@@ -267,66 +279,66 @@ namespace MY_IM{
                 //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
-            void PhoneRegister(const httplib::Request &request, httplib::Response &response) {
-                //1. 取出http请求正文，将正文进行反序列化
-                PhoneRegisterReq req;
-                PhoneRegisterRsp rsp;
-                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-                    rsp.set_success(false);
-                    rsp.set_errmsg(errmsg);
-                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-                };
-                bool ret = req.ParseFromString(request.body);
-                if (ret == false) {
-                    LOG_ERROR("手机号注册请求正文反序列化失败！");
-                    return err_response("手机号注册请求正文反序列化失败！");
-                }
-                //2. 将请求转发给用户子服务进行业务处理
-                auto channel = _mm_channels->GetChannel(_user_service_name);
-                if (!channel) {
-                    LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-                    return err_response("未找到可提供业务处理的用户子服务节点！");
-                }
-                MY_IM::UserService_Stub stub(channel.get());
-                brpc::Controller cntl;
-                stub.PhoneRegister(&cntl, &req, &rsp, nullptr);
-                if (cntl.Failed()) {
-                    LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-                    return err_response("用户子服务调用失败！");
-                }
-                //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            }
-            void PhoneLogin(const httplib::Request &request, httplib::Response &response) {
-                //1. 取出http请求正文，将正文进行反序列化
-                PhoneLoginReq req;
-                PhoneLoginRsp rsp;
-                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-                    rsp.set_success(false);
-                    rsp.set_errmsg(errmsg);
-                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-                };
-                bool ret = req.ParseFromString(request.body);
-                if (ret == false) {
-                    LOG_ERROR("手机号登录请求正文反序列化失败！");
-                    return err_response("手机号登录请求正文反序列化失败！");
-                }
-                //2. 将请求转发给用户子服务进行业务处理
-                auto channel = _mm_channels->GetChannel(_user_service_name);
-                if (!channel) {
-                    LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-                    return err_response("未找到可提供业务处理的用户子服务节点！");
-                }
-                MY_IM::UserService_Stub stub(channel.get());
-                brpc::Controller cntl;
-                stub.PhoneLogin(&cntl, &req, &rsp, nullptr);
-                if (cntl.Failed()) {
-                    LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-                    return err_response("用户子服务调用失败！");
-                }
-                //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            }
+            // void PhoneRegister(const httplib::Request &request, httplib::Response &response) {
+            //     //1. 取出http请求正文，将正文进行反序列化
+            //     PhoneRegisterReq req;
+            //     PhoneRegisterRsp rsp;
+            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+            //         rsp.set_success(false);
+            //         rsp.set_errmsg(errmsg);
+            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            //     };
+            //     bool ret = req.ParseFromString(request.body);
+            //     if (ret == false) {
+            //         LOG_ERROR("手机号注册请求正文反序列化失败！");
+            //         return err_response("手机号注册请求正文反序列化失败！");
+            //     }
+            //     //2. 将请求转发给用户子服务进行业务处理
+            //     auto channel = _mm_channels->GetChannel(_user_service_name);
+            //     if (!channel) {
+            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
+            //         return err_response("未找到可提供业务处理的用户子服务节点！");
+            //     }
+            //     MY_IM::UserService_Stub stub(channel.get());
+            //     brpc::Controller cntl;
+            //     stub.PhoneRegister(&cntl, &req, &rsp, nullptr);
+            //     if (cntl.Failed()) {
+            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
+            //         return err_response("用户子服务调用失败！");
+            //     }
+            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
+            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            // }
+            // void PhoneLogin(const httplib::Request &request, httplib::Response &response) {
+            //     //1. 取出http请求正文，将正文进行反序列化
+            //     PhoneLoginReq req;
+            //     PhoneLoginRsp rsp;
+            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+            //         rsp.set_success(false);
+            //         rsp.set_errmsg(errmsg);
+            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            //     };
+            //     bool ret = req.ParseFromString(request.body);
+            //     if (ret == false) {
+            //         LOG_ERROR("手机号登录请求正文反序列化失败！");
+            //         return err_response("手机号登录请求正文反序列化失败！");
+            //     }
+            //     //2. 将请求转发给用户子服务进行业务处理
+            //     auto channel = _mm_channels->GetChannel(_user_service_name);
+            //     if (!channel) {
+            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
+            //         return err_response("未找到可提供业务处理的用户子服务节点！");
+            //     }
+            //     MY_IM::UserService_Stub stub(channel.get());
+            //     brpc::Controller cntl;
+            //     stub.PhoneLogin(&cntl, &req, &rsp, nullptr);
+            //     if (cntl.Failed()) {
+            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
+            //         return err_response("用户子服务调用失败！");
+            //     }
+            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
+            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            // }
             void GetUserInfo(const httplib::Request &request, httplib::Response &response) {
                 //1. 取出http请求正文，将正文进行反序列化
                 GetUserInfoReq req;
@@ -976,6 +988,87 @@ namespace MY_IM{
                 rsp.clear_chat_session_info();
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
+            void CreateChannel(const httplib::Request &request, httplib::Response &response) {
+                CreateChannelReq req;
+                CreateChannelRsp rsp;
+                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+                    rsp.set_success(false);
+                    rsp.set_errmsg(errmsg);
+                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+                };
+                bool ret = req.ParseFromString(request.body);
+                if (ret == false) {
+                    LOG_ERROR("创建频道请求正文反序列化失败！");
+                    return err_response("创建频道请求正文反序列化失败！");
+                }
+                std::string ssid = req.session_id();
+                auto uid = _redis_session->uid(ssid);
+                if (!uid) {
+                    LOG_ERROR("{} 获取登录会话关联用户信息失败！", ssid);
+                    return err_response("获取登录会话关联用户信息失败！");
+                }
+                req.set_user_id(*uid);
+                auto channel = _mm_channels->GetChannel(_channel_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到可提供业务处理的频道子服务节点！", req.request_id());
+                    return err_response("未找到可提供业务处理的频道子服务节点！");
+                }
+                MY_IM::ChannelService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.CreateChannel(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed()) {
+                    LOG_ERROR("{} 频道子服务调用失败！", req.request_id());
+                    return err_response("频道子服务调用失败！");
+                }
+                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            }
+            void SendChannelMessage(const httplib::Request &request, httplib::Response &response) {
+                SendChannelMessageReq req;
+                SendChannelMessageRsp rsp;
+                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+                    rsp.set_success(false);
+                    rsp.set_errmsg(errmsg);
+                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+                };
+                bool ret = req.ParseFromString(request.body);
+                if (ret == false) {
+                    LOG_ERROR("频道消息请求正文反序列化失败！");
+                    return err_response("频道消息请求正文反序列化失败！");
+                }
+                std::string ssid = req.session_id();
+                auto uid = _redis_session->uid(ssid);
+                if (!uid) {
+                    LOG_ERROR("{} 获取登录会话关联用户信息失败！", ssid);
+                    return err_response("获取登录会话关联用户信息失败！");
+                }
+                req.set_user_id(*uid);
+                auto channel = _mm_channels->GetChannel(_channel_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到可提供业务处理的频道子服务节点！", req.request_id());
+                    return err_response("未找到可提供业务处理的频道子服务节点！");
+                }
+                MY_IM::ChannelService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.SendChannelMessage(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed()) {
+                    LOG_ERROR("{} 频道子服务调用失败！", req.request_id());
+                    return err_response("频道子服务调用失败！");
+                }
+                if (rsp.success()){
+                    for (int i = 0; i < rsp.target_id_list_size(); i++) {
+                        std::string notify_uid = rsp.target_id_list(i);
+                        if (notify_uid == *uid) continue;
+                        auto conn = _connections->connection(notify_uid);
+                        if (!conn) { continue;}
+                        NotifyMessage notify;
+                        notify.set_notify_type(NotifyType::CHAT_MESSAGE_NOTIFY);
+                        auto msg_info = notify.mutable_new_message_info();
+                        msg_info->mutable_message_info()->CopyFrom(rsp.message());
+                        conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                    }
+                }
+                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            }
             void GetHistoryMsg(const httplib::Request &request, httplib::Response &response) {
                 GetHistoryMsgReq req;
                 GetHistoryMsgRsp rsp;
@@ -1080,6 +1173,43 @@ namespace MY_IM{
                 MY_IM::MsgStorageService_Stub stub(channel.get());
                 brpc::Controller cntl;
                 stub.MsgSearch(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed()) {
+                    LOG_ERROR("{} 消息存储子服务调用失败！", req.request_id());
+                    return err_response("消息存储子服务调用失败！");
+                }
+                // 5. 向客户端进行响应
+                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            }
+            void GetSyncMsg(const httplib::Request &request, httplib::Response &response) {
+                GetSyncMsgReq req;
+                GetSyncMsgRsp rsp;
+                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+                    rsp.set_success(false);
+                    rsp.set_errmsg(errmsg);
+                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+                };
+                bool ret = req.ParseFromString(request.body);
+                if (ret == false) {
+                    LOG_ERROR("消息同步请求正文反序列化失败！");
+                    return err_response("消息同步请求正文反序列化失败！");
+                }
+                // 2. 客户端身份识别与鉴权
+                std::string ssid = req.session_id();
+                auto uid = _redis_session->uid(ssid);
+                if (!uid) {
+                    LOG_ERROR("{} 获取登录会话关联用户信息失败！", ssid);
+                    return err_response("获取登录会话关联用户信息失败！");
+                }
+                req.set_user_id(*uid);
+                // 3. 将请求转发给消息存储子服务进行业务处理
+                auto channel = _mm_channels->GetChannel(_message_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
+                    return err_response("未找到可提供业务处理的用户子服务节点！");
+                }
+                MY_IM::MsgStorageService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.GetSyncMsg(&cntl, &req, &rsp, nullptr);
                 if (cntl.Failed()) {
                     LOG_ERROR("{} 消息存储子服务调用失败！", req.request_id());
                     return err_response("消息存储子服务调用失败！");
@@ -1304,12 +1434,14 @@ namespace MY_IM{
                 }
                 MY_IM::MsgTransmitService_Stub stub(channel.get());
                 brpc::Controller cntl;
+                //让转发子服务组装消息、查会话成员、并发布到 MQ（用于持久化）。
                 stub.GetTransmitTarget(&cntl, &req, &target_rsp, nullptr);
                 if (cntl.Failed()) {
                     LOG_ERROR("{} 消息转发子服务调用失败！", req.request_id());
                     return err_response("消息转发子服务调用失败！");
                 }
-                // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
+                
+                // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请方进行好友申请事件通知
                 if (target_rsp.success()){
                     for (int i = 0; i < target_rsp.target_id_list_size(); i++) {
                         std::string notify_uid = target_rsp.target_id_list(i);
@@ -1339,6 +1471,7 @@ namespace MY_IM{
             std::string _message_service_name;
             std::string _transmite_service_name;
             std::string _friend_service_name;
+            std::string _channel_service_name;
             ServiceManager::ptr _mm_channels;
             Discoverer::ptr _service_discoverer;
 
@@ -1366,13 +1499,15 @@ namespace MY_IM{
                 const std::string &message_service_name,
                 const std::string &friend_service_name,
                 const std::string &user_service_name,
-                const std::string &transmite_service_name) {
+                const std::string &transmite_service_name,
+                const std::string &channel_service_name) {
                 _file_service_name      = file_service_name;
                 _speech_service_name    = speech_service_name;
                 _message_service_name   = message_service_name;
                 _friend_service_name    = friend_service_name;
                 _user_service_name      = user_service_name;
                 _transmite_service_name = transmite_service_name;
+                _channel_service_name   = channel_service_name;
                 _mm_channels = std::make_shared<ServiceManager>();
                 _mm_channels->FollowOn(file_service_name);
                 _mm_channels->FollowOn(speech_service_name);
@@ -1380,6 +1515,7 @@ namespace MY_IM{
                 _mm_channels->FollowOn(friend_service_name);
                 _mm_channels->FollowOn(user_service_name);
                 _mm_channels->FollowOn(transmite_service_name);
+                _mm_channels->FollowOn(channel_service_name);
                 auto put_cb = std::bind(&ServiceManager::OnlineCall, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
                 auto del_cb = std::bind(&ServiceManager::OfflineCall, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
                 _service_discoverer = std::make_shared<Discoverer>(reg_host, base_service_name, put_cb, del_cb);
@@ -1406,7 +1542,7 @@ namespace MY_IM{
                     _websocket_port, _http_port, _redis_client, _mm_channels, 
                     _service_discoverer, _user_service_name, _file_service_name,
                     _speech_service_name, _message_service_name, 
-                    _transmite_service_name, _friend_service_name);
+                    _transmite_service_name, _friend_service_name, _channel_service_name);
                 return server;
             }
         private:
@@ -1421,6 +1557,7 @@ namespace MY_IM{
             std::string _friend_service_name;
             std::string _user_service_name;
             std::string _transmite_service_name;
+            std::string _channel_service_name;
             ServiceManager::ptr _mm_channels;
             Discoverer::ptr _service_discoverer;
     };

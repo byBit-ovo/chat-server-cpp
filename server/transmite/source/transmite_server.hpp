@@ -5,6 +5,7 @@
 #include "etcd.hpp"     // 服务注册模块封装
 #include "logger.hpp"   // 日志模块封装
 #include "rabbitmq.hpp"
+#include "redis.hpp"
 #include "channel.hpp"
 #include "utils.hpp"
 #include "mysql_chat_session_member.hpp"
@@ -21,13 +22,15 @@ class TransmiteServiceImpl : public MY_IM::MsgTransmitService {
             const std::shared_ptr<odb::core::database> &mysql_client,
             const std::string &exchange_name,
             const std::string &routing_key,
-            const MQClient::ptr &mq_client):
+            const MQClient::ptr &mq_client,
+            const SequenceClient::ptr &msg_id_client):
             _user_service_name(user_service_name),
             _mm_channels(channels),
             _mysql_session_member_table(std::make_shared<ChatSessionMemeberTable>(mysql_client)),
             _exchange_name(exchange_name),
             _routing_key(routing_key),
-            _mq_client(mq_client){}
+            _mq_client(mq_client),
+            _msg_id_client(msg_id_client){}
         ~TransmiteServiceImpl(){}
         void GetTransmitTarget(google::protobuf::RpcController* controller,
                        const ::MY_IM::NewMessageReq* request,
@@ -64,7 +67,7 @@ class TransmiteServiceImpl : public MY_IM::MsgTransmitService {
                 return err_response(request->request_id(), "用户子服务调用失败!");
             }
             MessageInfo message;
-            message.set_message_id(Uuid());
+            message.set_message_id(std::to_string(_msg_id_client->next("message_id")));
             message.set_chat_session_id(chat_ssid);
             message.set_timestamp(time(nullptr));
             message.mutable_sender()->CopyFrom(rsp.user_info());
@@ -97,6 +100,7 @@ class TransmiteServiceImpl : public MY_IM::MsgTransmitService {
         std::string _exchange_name;
         std::string _routing_key;
         MQClient::ptr _mq_client;
+        SequenceClient::ptr _msg_id_client;
 };
 
 class TransmiteServer {
@@ -148,6 +152,13 @@ class TransmiteServerBuilder {
             auto del_cb = std::bind(&ServiceManager::OfflineCall, _mm_channels.get(), std::placeholders::_1, std::placeholders::_2);
             _service_discoverer = std::make_shared<Discoverer>(reg_host, base_service_name, put_cb, del_cb);
         }
+        //用于构造redis客户端对象
+        void make_redis_object(const std::string &host,
+            int port,
+            int db,
+            bool keep_alive) {
+            _redis_client = RedisFactory::create(host, port, db, keep_alive);
+        }
         //用于构造服务注册客户端对象
         void make_registry_object(const std::string &reg_host,
             const std::string &service_name,
@@ -181,11 +192,16 @@ class TransmiteServerBuilder {
                 LOG_ERROR("还未初始化Mysql数据库模块！");
                 abort();
             }
+            if (!_redis_client) {
+                LOG_ERROR("还未初始化Redis客户端模块！");
+                abort();
+            }
 
             _rpc_server = std::make_shared<brpc::Server>();
 
             TransmiteServiceImpl *transmite_service = new TransmiteServiceImpl(
-                _user_service_name, _mm_channels, _mysql_client, _exchange_name, _routing_key, _mq_client);
+                _user_service_name, _mm_channels, _mysql_client, _exchange_name, _routing_key, _mq_client,
+                std::make_shared<SequenceClient>(_redis_client));
 
             int ret = _rpc_server->AddService(transmite_service, 
                 brpc::ServiceOwnership::SERVER_OWNS_SERVICE);
@@ -230,6 +246,7 @@ class TransmiteServerBuilder {
 
         Registerant::ptr _register_client; // 服务注册客户端
         std::shared_ptr<odb::core::database> _mysql_client; //mysql数据库客户端
+        std::shared_ptr<sw::redis::Redis> _redis_client;
         std::shared_ptr<brpc::Server> _rpc_server;
 };
 }

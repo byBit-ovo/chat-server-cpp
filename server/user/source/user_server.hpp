@@ -135,20 +135,24 @@ namespace MY_IM
 					LOG_ERROR("{} - 用户名或密码错误 - {}-{}！", request->request_id(), nickname, password);
 					return err_response(request->request_id(), "用户名或密码错误!");
 				}
-				//3. 根据 redis 中的登录标记信息是否存在判断用户是否已经登录。
-				bool ret = _status_client->exists(user->user_id());
+				//3. 根据 redis 中的登录标记信息是否存在判断用户是否已经登录，同一用户可用不同设备同时登录
+				//0: 移动端，1: 网页端，2: 桌面端，3: 其他
+				std::string device_type = request->device_type();
+				std::string status_key = user->user_id() + ":" + device_type;
+				bool ret = _status_client->exists(status_key);
 				if (ret == true) {
 					LOG_ERROR("{} - 用户已在其他地方登录 - {}！", request->request_id(), nickname);
 					return err_response(request->request_id(), "用户已在其他地方登录!");
 				}
 				//4. 构造会话 ID，生成会话键值对，向 redis 中添加会话信息以及登录标记信息
 				std::string ssid = Uuid();
-				_session_client->append(ssid, user->user_id());
+				_session_client->append(ssid, user->user_id(), device_type);
 				//5. 添加用户登录信息
-				_status_client->append(user->user_id());
+				_status_client->append(status_key);
 				//5. 组织响应，返回生成的会话 ID
 				response->set_request_id(request->request_id());
 				response->set_login_session_id(ssid);
+				response->set_device_type(device_type);
 				response->set_success(true);
 			}
 

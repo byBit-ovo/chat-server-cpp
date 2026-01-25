@@ -1,0 +1,41 @@
+syntax = "proto3";
+package MY_IM;
+
+import "base.proto";
+option cc_generic_services = true;
+
+message CreateChannelReq {
+  string request_id = 1;
+  optional string user_id = 2; // 创建者
+  optional string session_id = 3;
+  string channel_name = 4;
+  repeated string member_id_list = 5;
+}
+
+message CreateChannelRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  string channel_id = 4;
+}
+
+message SendChannelMessageReq {
+  string request_id = 1;
+  optional string user_id = 2;
+  optional string session_id = 3;
+  string channel_id = 4;
+  MessageContent message = 5;
+}
+
+message SendChannelMessageRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+  MessageInfo message = 4;
+  repeated string target_id_list = 5;
+}
+
+service ChannelService {
+  rpc CreateChannel(CreateChannelReq) returns (CreateChannelRsp);
+  rpc SendChannelMessage(SendChannelMessageReq) returns (SendChannelMessageRsp);
+}

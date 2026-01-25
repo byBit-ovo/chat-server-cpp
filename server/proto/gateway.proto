@@ -40,8 +40,12 @@ message ClientAuthenticationReq {
         获取历史消息/离线消息列表        /service/message_storage/get_history
         获取最近N条消息列表             /service/message_storage/get_recent
         搜索历史消息                    /service/message_storage/search_history
+        同步消息(按message_id)         /service/message_storage/get_sync
         
         发送消息                        /service/message_transmit/new_message
+
+        创建频道                        /service/channel/create
+        频道发消息                      /service/channel/new_message
 
         获取单个文件数据                /service/file/get_single_file
         获取多个文件数据                /service/file/get_multi_file

@@ -30,12 +30,14 @@ message UserLoginReq {
  string password = 3;
  string verify_code_id = 4;
  string verify_code = 5;
+ string device_type = 6;
 } 
 message UserLoginRsp {
  string request_id = 1;
  bool success = 2;
  string errmsg = 3;
  string login_session_id = 4;
+ string device_type = 5;
 } 
 //----------------------------
 //手机号验证码获取

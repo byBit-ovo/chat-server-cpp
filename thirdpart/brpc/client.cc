@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 {
 	google::ParseCommandLineFlags(&argc,&argv,true);
     init_logger(FLAGS_log_mode,FLAGS_log_file,FLAGS_log_level);
-	ServiceManager::Ptr manager = std::make_shared<ServiceManager>();
+	ServiceManager::ptr manager = std::make_shared<ServiceManager>();
 	manager->FollowOn(FLAGS_base_dir + FLAGS_echo_service);
 
 	Discoverer::call_back_t put_call = std::bind(&ServiceManager::OnlineCall,manager.get(),

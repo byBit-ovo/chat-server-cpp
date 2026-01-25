@@ -10,7 +10,7 @@ namespace MY_IM
 		using ptr = std::shared_ptr<ChatSessionMemeberTable>;
 		ChatSessionMemeberTable(const std::shared_ptr<odb::core::database> &db) : _db(db) {}
 		// 单个会话成员的新增 --- ssid & uid
-		bool append(ChatSessionMember &csm)
+		bool append(ChatSessionMember &csm) 
 		{
 			try
 			{
@@ -101,6 +101,27 @@ namespace MY_IM
 			catch (std::exception &e)
 			{
 				LOG_ERROR("获取会话成员失败:{}-{}！", ssid, e.what());
+			}
+			return res;
+		}
+		std::vector<std::string> sessions(const std::string &uid)
+		{
+			std::vector<std::string> res;
+			try
+			{
+				odb::transaction trans(_db->begin());
+				typedef odb::query<ChatSessionMember> query;
+				typedef odb::result<ChatSessionMember> result;
+				result r(_db->query<ChatSessionMember>(query::user_id == uid));
+				for (result::iterator i(r.begin()); i != r.end(); ++i)
+				{
+					res.push_back(i->session_id());
+				}
+				trans.commit();
+			}
+			catch (std::exception &e)
+			{
+				LOG_ERROR("获取用户会话列表失败:{}-{}！", uid, e.what());
 			}
 			return res;
 		}
