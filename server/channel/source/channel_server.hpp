@@ -1,5 +1,6 @@
 #include <brpc/server.h>
 #include <butil/logging.h>
+#include <unordered_set>
 
 #include "etcd.hpp"
 #include "logger.hpp"
@@ -64,6 +65,7 @@ class ChannelServiceImpl : public MY_IM::ChannelService {
                 if (mid == uid) {
                     has_creator = true;
                 }
+                //频道会话id就是频道id
                 member_list.emplace_back(channel_id, mid);
             }
             if (!has_creator) {
@@ -78,6 +80,66 @@ class ChannelServiceImpl : public MY_IM::ChannelService {
             response->set_request_id(rid);
             response->set_success(true);
             response->set_channel_id(channel_id);
+        }
+
+        void AddChannelMember(google::protobuf::RpcController* controller,
+                       const ::MY_IM::AddChannelMemberReq* request,
+                       ::MY_IM::AddChannelMemberRsp* response,
+                       ::google::protobuf::Closure* done) override {
+            brpc::ClosureGuard rpc_guard(done);
+            auto err_response = [this, response](const std::string &rid,
+                const std::string &errmsg) -> void {
+                response->set_request_id(rid);
+                response->set_success(false);
+                response->set_errmsg(errmsg);
+                return;
+            };
+            std::string rid = request->request_id();
+            std::string uid = request->user_id();
+            std::string channel_id = request->channel_id();
+            if (uid.empty() || channel_id.empty()) {
+                return err_response(rid, "添加频道成员参数不合法");
+            }
+            std::string creator_id = _mysql_channel->creator(channel_id);
+            if (creator_id.empty()) {
+                return err_response(rid, "频道不存在");
+            }
+            if (creator_id != uid) {
+                return err_response(rid, "只有频道创建者可以添加成员");
+            }
+            auto session = _mysql_chat_session->select(channel_id);
+            if (!session) {
+                return err_response(rid, "频道会话不存在");
+            }
+            if (session->chat_session_type() != ChatSessionType::CHANNEL) {
+                return err_response(rid, "会话不是频道类型");
+            }
+            auto member_id_lists = _mysql_chat_session_member->members(channel_id);
+            std::unordered_set<std::string> member_set(member_id_lists.begin(), member_id_lists.end());
+            std::unordered_set<std::string> pending_set;
+            std::vector<ChatSessionMember> member_list;
+            for (int i = 0; i < request->member_id_list_size(); i++) {
+                std::string mid = request->member_id_list(i);
+                if (mid.empty()) {
+                    continue;
+                }
+                if (member_set.find(mid) != member_set.end()) {
+                    continue;
+                }
+                if (!pending_set.insert(mid).second) {
+                    continue;
+                }
+                member_list.emplace_back(channel_id, mid);
+            }
+            if (!member_list.empty()) {
+                bool ret = _mysql_chat_session_member->append(member_list);
+                if (ret == false) {
+                    LOG_ERROR("{} - 向数据库添加频道成员失败: {}", rid, channel_id);
+                    return err_response(rid, "向数据库添加频道成员失败");
+                }
+            }
+            response->set_request_id(rid);
+            response->set_success(true);
         }
 
         void SendChannelMessage(google::protobuf::RpcController* controller,

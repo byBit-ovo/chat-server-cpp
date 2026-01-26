@@ -11,3 +11,9 @@ GET /user/_doc/_search
     "match_all": {}
   }
 }
+
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+
+ln -sf compile_commands.json /home/qzr/gitee/chat-server-cpp/compile_commands.json
+-s:创建软链接(symbolic link)
+-f:强制覆盖已存在的目标(不提示)

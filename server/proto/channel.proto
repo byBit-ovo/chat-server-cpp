@@ -19,6 +19,20 @@ message CreateChannelRsp {
   string channel_id = 4;
 }
 
+message AddChannelMemberReq {
+  string request_id = 1;
+  optional string user_id = 2;
+  optional string session_id = 3;
+  string channel_id = 4;
+  repeated string member_id_list = 5;
+}
+
+message AddChannelMemberRsp {
+  string request_id = 1;
+  bool success = 2;
+  string errmsg = 3;
+}
+
 message SendChannelMessageReq {
   string request_id = 1;
   optional string user_id = 2;
@@ -37,5 +51,6 @@ message SendChannelMessageRsp {
 
 service ChannelService {
   rpc CreateChannel(CreateChannelReq) returns (CreateChannelRsp);
+  rpc AddChannelMember(AddChannelMemberReq) returns (AddChannelMemberRsp);
   rpc SendChannelMessage(SendChannelMessageReq) returns (SendChannelMessageRsp);
 }

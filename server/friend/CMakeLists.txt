@@ -19,16 +19,14 @@ foreach(proto_file ${proto_files})
 #   3. 如果没有生成，则预定义生成指令 -- 用于在构建项目之间先生成框架代码
     string(REPLACE ".proto" ".pb.cc" proto_cc ${proto_file})
     string(REPLACE ".proto" ".pb.h" proto_hh  ${proto_file})
-    if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}${proto_cc})
-        add_custom_command(
-            PRE_BUILD
-            COMMAND protoc
-            ARGS --cpp_out=${CMAKE_CURRENT_BINARY_DIR} -I ${proto_path} --experimental_allow_proto3_optional ${proto_path}/${proto_file}
-            DEPENDS ${proto_path}/${proto_file}
-            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${proto_cc}
-            COMMENT "生成Protobuf框架代码文件:" ${CMAKE_CURRENT_BINARY_DIR}/${proto_cc}
-        )
-    endif()
+    add_custom_command(
+        PRE_BUILD
+        COMMAND protoc
+        ARGS --cpp_out=${CMAKE_CURRENT_BINARY_DIR} -I ${proto_path} --experimental_allow_proto3_optional ${proto_path}/${proto_file}
+        DEPENDS ${proto_path}/${proto_file}
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${proto_cc}
+        COMMENT "生成Protobuf框架代码文件:" ${CMAKE_CURRENT_BINARY_DIR}/${proto_cc}
+    )
     list(APPEND proto_srcs ${CMAKE_CURRENT_BINARY_DIR}/${proto_cc})
 endforeach()
 

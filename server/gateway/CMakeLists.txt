@@ -46,6 +46,14 @@ target_link_libraries(${target} -lgflags
     -lcpprest -lcurl
     -lpthread -lboost_system)
 
+# gateway 测试客户端
+set(gateway_client "gateway_client")
+set(gateway_client_files ${CMAKE_CURRENT_SOURCE_DIR}/test/gateway_client.cc)
+add_executable(${gateway_client} ${gateway_client_files} ${proto_srcs})
+target_link_libraries(${gateway_client}
+    -pthread -lgflags -lprotobuf -lboost_system
+    -lspdlog -lfmt -lssl -lcrypto)
+
 
 # 6. 设置头文件默认搜索路径
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -53,4 +61,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../common)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third/include)
 
 #8. 设置安装路径
-INSTALL(TARGETS ${target} RUNTIME DESTINATION bin)
+INSTALL(TARGETS ${target} ${gateway_client} RUNTIME DESTINATION bin)

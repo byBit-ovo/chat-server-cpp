@@ -6,9 +6,9 @@ DEFINE_int32(log_level, 0, "发布模式下，用于指定日志输出等级");
 
 DEFINE_string(registry_host, "http://127.0.0.1:2379", "服务注册中心地址");
 DEFINE_string(instance_name, "/channel_service/instance", "当前实例名称");
-DEFINE_string(access_host, "127.0.0.1:10005", "当前实例的外部访问地址");
+DEFINE_string(access_host, "127.0.0.1:10002", "当前实例的外部访问地址");
 
-DEFINE_int32(listen_port, 10005, "Rpc服务器监听端口");
+DEFINE_int32(listen_port, 10002, "Rpc服务器监听端口");
 DEFINE_int32(rpc_timeout, -1, "Rpc调用超时时间");
 DEFINE_int32(rpc_threads, 1, "Rpc的IO线程数量");
 
