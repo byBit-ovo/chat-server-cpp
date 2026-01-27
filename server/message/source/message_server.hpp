@@ -1,6 +1,7 @@
 // 实现语音识别子服务
 #include <brpc/server.h>
 #include <butil/logging.h>
+#include <mysql/mysql.h>
 
 #include "search.hpp"		 // es数据管理客户端封装
 #include "mysql_message.hpp" // mysql数据管理客户端封装
@@ -387,94 +388,132 @@ namespace MY_IM
 		// receive messages from MqServer and store them in ES, MySQL, file_service
 		void onMessage(const char *body, size_t sz)
 		{
-			LOG_INFO("收到新消息，进行存储处理！");
-			// 1. 取出序列化的消息内容，进行反序列化
-			MY_IM::MessageInfo message;
-			bool ret = message.ParseFromArray(body, sz);
-			if (ret == false)
+			static thread_local MysqlThreadGuard mysql_guard;
+			(void)mysql_guard;
+			try
 			{
-				LOG_ERROR("对消费到的消息进行反序列化失败！");
-				return;
-			}
-			// 2. 根据不同的消息类型进行不同的处理
-			std::string file_id, file_name, content;
-			int64_t file_size;
-			switch (message.message().message_type())
-			{
-			//  1. 如果是一个文本类型消息，取元信息存储到ES中
-			case MessageType::STRING:
-				content = message.message().string_message().content();
-				ret = _es_message->appendData(
-					message.sender().user_id(),
-					message.message_id(),
-					message.timestamp(),
-					message.chat_session_id(),
-					content);
+				LOG_INFO("收到新消息，进行存储处理！");
+				// 1. 取出序列化的消息内容，进行反序列化
+				MY_IM::MessageInfo message;
+				bool ret = message.ParseFromArray(body, sz);
 				if (ret == false)
 				{
-					LOG_ERROR("文本消息向存储引擎进行存储失败！");
+					LOG_ERROR("对消费到的消息进行反序列化失败！");
 					return;
+				}
+				// 2. 根据不同的消息类型进行不同的处理
+				std::string file_id, file_name, content;
+				int64_t file_size = 0;
+				switch (message.message().message_type())
+				{
+				//  1. 如果是一个文本类型消息，取元信息存储到ES中
+				case MessageType::STRING:
+					content = message.message().string_message().content();
+					ret = _es_message->appendData(
+						message.sender().user_id(),
+						message.message_id(),
+						message.timestamp(),
+						message.chat_session_id(),
+						content);
+					if (ret == false)
+					{
+						LOG_ERROR("文本消息向存储引擎进行存储失败！");
+						return;
+					}
+					break;
+				//  2. 如果是一个图片/语音/文件消息，则取出数据存储到文件子服务中，并获取文件ID
+				case MessageType::IMAGE:
+				{
+					const auto &msg = message.message().image_message();
+					ret = _PutFile("", msg.image_content(), msg.image_content().size(), file_id);
+					if (ret == false)
+					{
+						LOG_ERROR("上传图片到文件子服务失败！");
+						return;
+					}
 				}
 				break;
-			//  2. 如果是一个图片/语音/文件消息，则取出数据存储到文件子服务中，并获取文件ID
-			case MessageType::IMAGE:
-			{
-				const auto &msg = message.message().image_message();
-				ret = _PutFile("", msg.image_content(), msg.image_content().size(), file_id);
+				case MessageType::FILE:
+				{
+					const auto &msg = message.message().file_message();
+					file_name = msg.file_name();
+					file_size = msg.file_size();
+					ret = _PutFile(file_name, msg.file_contents(), file_size, file_id);
+					if (ret == false)
+					{
+						LOG_ERROR("上传文件到文件子服务失败！");
+						return;
+					}
+				}
+				break;
+				case MessageType::SPEECH:
+				{
+					const auto &msg = message.message().speech_message();
+					ret = _PutFile("", msg.file_contents(), msg.file_contents().size(), file_id);
+					if (ret == false)
+					{
+						LOG_ERROR("上传语音到文件子服务失败！");
+						return;
+					}
+				}
+				break;
+				default:
+					LOG_ERROR("消息类型错误！");
+					return;
+				}
+				// 3. 提取消息的元信息，存储到mysql数据库中
+				// 这个函数是rabbitmq线程执行的，该线程最开始没有初始化mysql线程，所以在使用时崩溃退出，所以加上static
+				MY_IM::Message msg(message.message_id(),
+								   message.chat_session_id(),
+								   message.sender().user_id(),
+								   message.message().message_type(),
+								   boost::posix_time::from_time_t(message.timestamp()));
+				msg.content(content);
+				msg.file_id(file_id);
+				msg.file_name(file_name);
+				msg.file_size(file_size);
+				ret = _mysql_message->insert(msg);
 				if (ret == false)
 				{
-					LOG_ERROR("上传图片到文件子服务失败！");
+					LOG_ERROR("向数据库插入新消息失败！");
 					return;
 				}
 			}
-			break;
-			case MessageType::FILE:
+			catch (const std::exception &e)
 			{
-				const auto &msg = message.message().file_message();
-				file_name = msg.file_name();
-				file_size = msg.file_size();
-				ret = _PutFile(file_name, msg.file_contents(), file_size, file_id);
-				if (ret == false)
-				{
-					LOG_ERROR("上传文件到文件子服务失败！");
-					return;
-				}
-			}
-			break;
-			case MessageType::SPEECH:
-			{
-				const auto &msg = message.message().speech_message();
-				ret = _PutFile("", msg.file_contents(), msg.file_contents().size(), file_id);
-				if (ret == false)
-				{
-					LOG_ERROR("上传语音到文件子服务失败！");
-					return;
-				}
-			}
-			break;
-			default:
-				LOG_ERROR("消息类型错误！");
+				LOG_ERROR("消息处理异常: {}", e.what());
 				return;
 			}
-			// 3. 提取消息的元信息，存储到mysql数据库中
-			MY_IM::Message msg(message.message_id(),
-							   message.chat_session_id(),
-							   message.sender().user_id(),
-							   message.message().message_type(),
-							   boost::posix_time::from_time_t(message.timestamp()));
-			msg.content(content);
-			msg.file_id(file_id);
-			msg.file_name(file_name);
-			msg.file_size(file_size);
-			ret = _mysql_message->insert(msg);
-			if (ret == false)
+			catch (...)
 			{
-				LOG_ERROR("向数据库插入新消息失败！");
+				LOG_ERROR("消息处理出现未知异常！");
 				return;
 			}
 		}
 
 	private:
+		struct MysqlThreadGuard
+		{
+			MysqlThreadGuard() : inited(false)
+			{
+				if (mysql_thread_init() == 0)
+				{
+					inited = true;
+				}
+				else
+				{
+					LOG_ERROR("MySQL线程初始化失败！");
+				}
+			}
+			~MysqlThreadGuard()
+			{
+				if (inited)
+				{
+					mysql_thread_end();
+				}
+			}
+			bool inited;
+		};
 		bool _GetUser(const std::string &rid,
 					  const std::unordered_set<std::string> &user_id_lists,
 					  std::unordered_map<std::string, UserInfo> &user_lists)

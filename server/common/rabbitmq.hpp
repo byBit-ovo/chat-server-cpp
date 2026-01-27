@@ -82,8 +82,8 @@ class MQClient {
                 .onReceived([this, cb](const AMQP::Message &message, 
                     uint64_t deliveryTag, 
                     bool redelivered) {
-                    cb(message.body(), message.bodySize());
-                    _channel->ack(deliveryTag);
+                    cb(message.body(), message.bodySize());// 事故现场，先调用回调函数，再确认消息
+                    _channel->ack(deliveryTag);// 确认消息
                 })
                 .onError([queue](const char *message){
                     LOG_ERROR("Subscribe {}(Queue) fail!: {}", queue, message);

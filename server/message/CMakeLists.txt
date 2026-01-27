@@ -70,7 +70,7 @@ target_link_libraries(${target} -lgflags
     -lcpprest -lcurl -lodb-mysql -lodb -lodb-boost
     /usr/lib/x86_64-linux-gnu/libjsoncpp.so.19
     -lcpr -lelasticlient
-    -lamqpcpp -lev)
+    -lamqpcpp -lev -lmysqlclient)
 
 
 set(test_client "message_client")

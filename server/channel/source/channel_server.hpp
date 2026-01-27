@@ -123,9 +123,11 @@ class ChannelServiceImpl : public MY_IM::ChannelService {
                 if (mid.empty()) {
                     continue;
                 }
+                // 如果成员已经存在，则跳过
                 if (member_set.find(mid) != member_set.end()) {
                     continue;
                 }
+                // 如果成员已经在待处理列表中，则跳过
                 if (!pending_set.insert(mid).second) {
                     continue;
                 }

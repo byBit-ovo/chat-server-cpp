@@ -189,36 +189,6 @@ namespace MY_IM{
                 LOG_DEBUG("新增长连接管理：{}-{}-{}", ssid, *uid, (size_t)conn.get());
                 keepAlive(conn);
             }
-            // void GetPhoneVerifyCode(const httplib::Request &request, httplib::Response &response) {
-            //     //1. 取出http请求正文，将正文进行反序列化
-            //     PhoneVerifyCodeReq req;
-            //     PhoneVerifyCodeRsp rsp;
-            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-            //         rsp.set_success(false);
-            //         rsp.set_errmsg(errmsg);
-            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            //     };
-            //     bool ret = req.ParseFromString(request.body);
-            //     if (ret == false) {
-            //         LOG_ERROR("获取短信验证码请求正文反序列化失败！");
-            //         return err_response("获取短信验证码请求正文反序列化失败！");
-            //     }
-            //     //2. 将请求转发给用户子服务进行业务处理
-            //     auto channel = _mm_channels->GetChannel(_user_service_name);
-            //     if (!channel) {
-            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-            //         return err_response("未找到可提供业务处理的用户子服务节点！");
-            //     }
-            //     MY_IM::UserService_Stub stub(channel.get());
-            //     brpc::Controller cntl;
-            //     stub.GetPhoneVerifyCode(&cntl, &req, &rsp, nullptr);
-            //     if (cntl.Failed()) {
-            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-            //         return err_response("用户子服务调用失败！");
-            //     }
-            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            // }
             void UserRegister(const httplib::Request &request, httplib::Response &response) {
                 //1. 取出http请求正文，将正文进行反序列化
                 UserRegisterReq req;
@@ -279,66 +249,6 @@ namespace MY_IM{
                 //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
-            // void PhoneRegister(const httplib::Request &request, httplib::Response &response) {
-            //     //1. 取出http请求正文，将正文进行反序列化
-            //     PhoneRegisterReq req;
-            //     PhoneRegisterRsp rsp;
-            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-            //         rsp.set_success(false);
-            //         rsp.set_errmsg(errmsg);
-            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            //     };
-            //     bool ret = req.ParseFromString(request.body);
-            //     if (ret == false) {
-            //         LOG_ERROR("手机号注册请求正文反序列化失败！");
-            //         return err_response("手机号注册请求正文反序列化失败！");
-            //     }
-            //     //2. 将请求转发给用户子服务进行业务处理
-            //     auto channel = _mm_channels->GetChannel(_user_service_name);
-            //     if (!channel) {
-            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-            //         return err_response("未找到可提供业务处理的用户子服务节点！");
-            //     }
-            //     MY_IM::UserService_Stub stub(channel.get());
-            //     brpc::Controller cntl;
-            //     stub.PhoneRegister(&cntl, &req, &rsp, nullptr);
-            //     if (cntl.Failed()) {
-            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-            //         return err_response("用户子服务调用失败！");
-            //     }
-            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            // }
-            // void PhoneLogin(const httplib::Request &request, httplib::Response &response) {
-            //     //1. 取出http请求正文，将正文进行反序列化
-            //     PhoneLoginReq req;
-            //     PhoneLoginRsp rsp;
-            //     auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
-            //         rsp.set_success(false);
-            //         rsp.set_errmsg(errmsg);
-            //         response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            //     };
-            //     bool ret = req.ParseFromString(request.body);
-            //     if (ret == false) {
-            //         LOG_ERROR("手机号登录请求正文反序列化失败！");
-            //         return err_response("手机号登录请求正文反序列化失败！");
-            //     }
-            //     //2. 将请求转发给用户子服务进行业务处理
-            //     auto channel = _mm_channels->GetChannel(_user_service_name);
-            //     if (!channel) {
-            //         LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
-            //         return err_response("未找到可提供业务处理的用户子服务节点！");
-            //     }
-            //     MY_IM::UserService_Stub stub(channel.get());
-            //     brpc::Controller cntl;
-            //     stub.PhoneLogin(&cntl, &req, &rsp, nullptr);
-            //     if (cntl.Failed()) {
-            //         LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
-            //         return err_response("用户子服务调用失败！");
-            //     }
-            //     //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
-            //     response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
-            // }
             void GetUserInfo(const httplib::Request &request, httplib::Response &response) {
                 //1. 取出http请求正文，将正文进行反序列化
                 GetUserInfoReq req;
