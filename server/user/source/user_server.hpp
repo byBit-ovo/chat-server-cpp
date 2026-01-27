@@ -138,7 +138,7 @@ namespace MY_IM
 				//3. 根据 redis 中的登录标记信息是否存在判断用户是否已经登录，同一用户可用不同设备同时登录
 				//0: 移动端，1: 网页端，2: 桌面端，3: 其他
 				std::string device_type = request->device_type();
-				std::string status_key = user->user_id() + ":" + device_type;
+				std::string status_key = user->user_id() + "|" + device_type;
 				bool ret = _status_client->exists(status_key);
 				if (ret == true) {
 					LOG_ERROR("{} - 用户已在其他地方登录 - {}！", request->request_id(), nickname);
@@ -156,33 +156,33 @@ namespace MY_IM
 				response->set_success(true);
 			}
 
-			virtual void GetPhoneVerifyCode
-			(	google::protobuf::RpcController *controller,
-				const ::MY_IM::PhoneVerifyCodeReq *request,
-				::MY_IM::PhoneVerifyCodeRsp *response,
-				::google::protobuf::Closure *done
-			)
-			{
-				brpc::ClosureGuard guard(done);
-			}
-			virtual void PhoneRegister
-			(	google::protobuf::RpcController *controller,
-				const ::MY_IM::PhoneRegisterReq *request,
-				::MY_IM::PhoneRegisterRsp *response,
-				::google::protobuf::Closure *done
-			)
-			{
-				brpc::ClosureGuard guard(done); 
-			}
-			virtual void PhoneLogin
-			(	google::protobuf::RpcController *controller,
-				const ::MY_IM::PhoneLoginReq *request,
-				::MY_IM::PhoneLoginRsp *response,
-				::google::protobuf::Closure *done
-			)
-			{
-				brpc::ClosureGuard guard(done);
-			}
+			// virtual void GetPhoneVerifyCode
+			// (	google::protobuf::RpcController *controller,
+			// 	const ::MY_IM::PhoneVerifyCodeReq *request,
+			// 	::MY_IM::PhoneVerifyCodeRsp *response,
+			// 	::google::protobuf::Closure *done
+			// )
+			// {
+			// 	brpc::ClosureGuard guard(done);
+			// }
+			// virtual void PhoneRegister
+			// (	google::protobuf::RpcController *controller,
+			// 	const ::MY_IM::PhoneRegisterReq *request,
+			// 	::MY_IM::PhoneRegisterRsp *response,
+			// 	::google::protobuf::Closure *done
+			// )
+			// {
+			// 	brpc::ClosureGuard guard(done); 
+			// }
+			// virtual void PhoneLogin
+			// (	google::protobuf::RpcController *controller,
+			// 	const ::MY_IM::PhoneLoginReq *request,
+			// 	::MY_IM::PhoneLoginRsp *response,
+			// 	::google::protobuf::Closure *done
+			// )
+			// {
+			// 	brpc::ClosureGuard guard(done);
+			// }
 			// operators after login
 			virtual void GetUserInfo
 			(	google::protobuf::RpcController *controller,

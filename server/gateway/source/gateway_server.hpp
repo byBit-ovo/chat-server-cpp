@@ -123,6 +123,7 @@ namespace MY_IM{
                 _http_thread = std::thread([this, http_port](){
                     _http_server.listen("0.0.0.0", http_port);
                 });
+                
                 _http_thread.detach();
             }
         void start() {
@@ -144,8 +145,8 @@ namespace MY_IM{
                 }
                 //1. 移除登录状态信息（支持按设备维度）
                 auto device_type = _redis_session->device_type(ssid);
-                if (device_type) {
-                    _redis_status->remove(uid + ":" + *device_type);
+                if (device_type != "") {
+                    _redis_status->remove(uid + "|" + *device_type);
                 } else {
                     _redis_status->remove(uid);
                 }
