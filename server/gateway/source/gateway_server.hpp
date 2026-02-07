@@ -18,37 +18,37 @@
 
 
 namespace MY_IM{
-    #define GET_PHONE_VERIFY_CODE   "/service/user/get_phone_verify_code"
-    #define USERNAME_REGISTER       "/service/user/username_register"
-    #define USERNAME_LOGIN          "/service/user/username_login"
-    #define PHONE_REGISTER          "/service/user/phone_register"
-    #define PHONE_LOGIN             "/service/user/phone_login"
-    #define GET_USERINFO            "/service/user/get_user_info"
-    #define SET_USER_AVATAR         "/service/user/set_avatar"
-    #define SET_USER_NICKNAME       "/service/user/set_nickname"
-    #define SET_USER_DESC           "/service/user/set_description"
-    #define SET_USER_PHONE          "/service/user/set_phone"
-    #define FRIEND_GET_LIST         "/service/friend/get_friend_list"
-    #define FRIEND_APPLY            "/service/friend/add_friend_apply"
-    #define FRIEND_APPLY_PROCESS    "/service/friend/add_friend_process"
-    #define FRIEND_REMOVE           "/service/friend/remove_friend"
-    #define FRIEND_SEARCH           "/service/friend/search_friend"
-    #define FRIEND_GET_PENDING_EV   "/service/friend/get_pending_friend_events"
-    #define CSS_GET_LIST            "/service/friend/get_chat_session_list"
-    #define CSS_CREATE              "/service/friend/create_chat_session"
-    #define CSS_GET_MEMBER          "/service/friend/get_chat_session_member"
-    #define MSG_GET_RANGE           "/service/message_storage/get_history"
-    #define MSG_GET_RECENT          "/service/message_storage/get_recent"
-    #define MSG_KEY_SEARCH          "/service/message_storage/search_history"
-    #define MSG_GET_SYNC           "/service/message_storage/get_sync"
-    #define NEW_MESSAGE             "/service/message_transmit/new_message"
-    #define FILE_GET_SINGLE         "/service/file/get_single_file"
-    #define FILE_GET_MULTI          "/service/file/get_multi_file"
-    #define FILE_PUT_SINGLE         "/service/file/put_single_file"
-    #define FILE_PUT_MULTI          "/service/file/put_multi_file"
-    #define SPEECH_RECOGNITION      "/service/speech/recognition"
-    #define CHANNEL_CREATE          "/service/channel/create"
-    #define CHANNEL_NEW_MESSAGE     "/service/channel/new_message"
+    #define GET_PHONE_VERIFY_CODE   "/chat/user/get_phone_verify_code"
+    #define USERNAME_REGISTER       "/chat/user/username_register"
+    #define USERNAME_LOGIN          "/chat/user/username_login"
+    #define PHONE_REGISTER          "/chat/user/phone_register"
+    #define PHONE_LOGIN             "/chat/user/phone_login"
+    #define GET_USERINFO            "/chat/user/get_user_info"
+    #define SET_USER_AVATAR         "/chat/user/set_avatar"
+    #define SET_USER_NICKNAME       "/chat/user/set_nickname"
+    #define SET_USER_DESC           "/chat/user/set_description"
+    #define SET_USER_PHONE          "/chat/user/set_phone"
+    #define FRIEND_GET_LIST         "/chat/friend/get_friend_list"
+    #define FRIEND_APPLY            "/chat/friend/add_friend_apply"
+    #define FRIEND_APPLY_PROCESS    "/chat/friend/add_friend_process"
+    #define FRIEND_REMOVE           "/chat/friend/remove_friend"
+    #define FRIEND_SEARCH           "/chat/friend/search_friend"
+    #define FRIEND_GET_PENDING_EV   "/chat/friend/get_pending_friend_events"
+    #define CSS_GET_LIST            "/chat/friend/get_chat_session_list"
+    #define CSS_CREATE              "/chat/friend/create_chat_session"
+    #define CSS_GET_MEMBER          "/chat/friend/get_chat_session_member"
+    #define MSG_GET_RANGE           "/chat/message_storage/get_history"
+    #define MSG_GET_RECENT          "/chat/message_storage/get_recent"
+    #define MSG_KEY_SEARCH          "/chat/message_storage/search_history"
+    #define MSG_GET_SYNC           "/chat/message_storage/get_sync"
+    #define NEW_MESSAGE             "/chat/message_transmit/new_message"
+    #define FILE_GET_SINGLE         "/chat/file/get_single_file"
+    #define FILE_GET_MULTI          "/chat/file/get_multi_file"
+    #define FILE_PUT_SINGLE         "/chat/file/put_single_file"
+    #define FILE_PUT_MULTI          "/chat/file/put_multi_file"
+    #define SPEECH_RECOGNITION      "/chat/speech/recognition"
+    #define CHANNEL_CREATE          "/chat/channel/create"
+    #define CHANNEL_NEW_MESSAGE     "/chat/channel/new_message"
     class GatewayServer {
         public:
             using ptr = std::shared_ptr<GatewayServer>;
@@ -537,8 +537,8 @@ namespace MY_IM{
                     return err_response("好友子服务调用失败！");
                 }
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
-                auto conn = _connections->connection(req.respondent_id());
-                if (rsp.success() && conn) {
+                auto conns = _connections->connections(req.respondent_id());
+                if (rsp.success() && !conns.empty()) {
                     LOG_DEBUG("找到被申请人 {} 长连接，对其进行好友申请通知", req.respondent_id());
                     auto user_rsp = _GetUserInfo(req.request_id(), *uid);
                     if (!user_rsp) {
@@ -548,7 +548,10 @@ namespace MY_IM{
                     NotifyMessage notify;
                     notify.set_notify_type(NotifyType::FRIEND_ADD_APPLY_NOTIFY);
                     notify.mutable_friend_add_apply()->mutable_user_info()->CopyFrom(user_rsp->user_info());
-                    conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                    auto payload = notify.SerializeAsString();
+                    for (auto &conn : conns) {
+                        conn->send(payload, websocketpp::frame::opcode::value::binary);
+                    }
                 }
                 // 5. 向客户端进行响应
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -600,31 +603,33 @@ namespace MY_IM{
                         LOG_ERROR("{} 获取用户信息失败！", req.request_id());
                         return err_response("获取用户信息失败！");
                     }
-                    auto process_conn = _connections->connection(*uid);
-                    if (process_conn) {
+                    auto process_conns = _connections->connections(*uid);
+                    if (!process_conns.empty()) {
                         LOG_DEBUG("找到处理人的长连接！");
                     } else {
                         LOG_DEBUG("未找到处理人的长连接！");
                     }
-                    auto apply_conn = _connections->connection(req.apply_user_id());
-                    if (apply_conn) {
+                    auto apply_conns = _connections->connections(req.apply_user_id());
+                    if (!apply_conns.empty()) {
                         LOG_DEBUG("找到申请人的长连接！");
                     } else {
                         LOG_DEBUG("未找到申请人的长连接！");
                     }
                     //4. 将处理结果给申请人进行通知
-                    if (apply_conn) {
+                    if (!apply_conns.empty()) {
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::FRIEND_ADD_PROCESS_NOTIFY);
                         auto process_result = notify.mutable_friend_process_result();
                         process_result->mutable_user_info()->CopyFrom(process_user_rsp->user_info());
                         process_result->set_agree(req.agree());
-                        apply_conn->send(notify.SerializeAsString(), 
-                            websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &apply_conn : apply_conns) {
+                            apply_conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                         LOG_DEBUG("对申请人进行申请处理结果通知！");
                     }
                     //5. 若处理结果是同意 --- 会伴随着单聊会话的创建 -- 因此需要对双方进行会话创建的通知
-                    if (req.agree() && apply_conn) { //对申请人的通知---会话信息就是处理人信息
+                    if (req.agree() && !apply_conns.empty()) { //对申请人的通知---会话信息就是处理人信息
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
@@ -632,10 +637,13 @@ namespace MY_IM{
                         chat_session->mutable_chat_session_info()->set_chat_session_id(rsp.new_session_id());
                         chat_session->mutable_chat_session_info()->set_chat_session_name(process_user_rsp->user_info().nickname());
                         chat_session->mutable_chat_session_info()->set_avatar(process_user_rsp->user_info().avatar());
-                        apply_conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &apply_conn : apply_conns) {
+                            apply_conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                         LOG_DEBUG("对申请人进行会话创建通知！");
                     }
-                    if (req.agree() && process_conn) { //对处理人的通知 --- 会话信息就是申请人信息
+                    if (req.agree() && !process_conns.empty()) { //对处理人的通知 --- 会话信息就是申请人信息
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
@@ -643,7 +651,10 @@ namespace MY_IM{
                         chat_session->mutable_chat_session_info()->set_chat_session_id(rsp.new_session_id());
                         chat_session->mutable_chat_session_info()->set_chat_session_name(apply_user_rsp->user_info().nickname());
                         chat_session->mutable_chat_session_info()->set_avatar(apply_user_rsp->user_info().avatar());
-                        process_conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &process_conn : process_conns) {
+                            process_conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                         LOG_DEBUG("对处理人进行会话创建通知！");
                     }
                 }
@@ -686,13 +697,16 @@ namespace MY_IM{
                     return err_response("好友子服务调用失败！");
                 }
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
-                auto conn = _connections->connection(req.peer_id());
-                if (rsp.success() && conn) {
+                auto conns = _connections->connections(req.peer_id());
+                if (rsp.success() && !conns.empty()) {
                     LOG_ERROR("对被删除人 {} 进行好友删除通知！", req.peer_id());
                     NotifyMessage notify;
                     notify.set_notify_type(NotifyType::FRIEND_REMOVE_NOTIFY);
                     notify.mutable_friend_remove()->set_user_id(*uid);
-                    conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                    auto payload = notify.SerializeAsString();
+                    for (auto &conn : conns) {
+                        conn->send(payload, websocketpp::frame::opcode::value::binary);
+                    }
                 }
                 // 5. 向客户端进行响应
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -882,8 +896,8 @@ namespace MY_IM{
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
                 if (rsp.success()){
                     for (int i = 0; i < req.member_id_list_size(); i++) {
-                        auto conn = _connections->connection(req.member_id_list(i));
-                        if (!conn) { 
+                        auto conns = _connections->connections(req.member_id_list(i));
+                        if (conns.empty()) {
                             LOG_DEBUG("未找到群聊成员 {} 长连接", req.member_id_list(i));
                             continue;
                         }
@@ -891,7 +905,10 @@ namespace MY_IM{
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
                         chat_session->mutable_chat_session_info()->CopyFrom(rsp.chat_session_info());
-                        conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &conn : conns) {
+                            conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                         LOG_DEBUG("对群聊成员 {} 进行会话创建通知", req.member_id_list(i));
                     }
                 }
@@ -969,13 +986,16 @@ namespace MY_IM{
                     for (int i = 0; i < rsp.target_id_list_size(); i++) {
                         std::string notify_uid = rsp.target_id_list(i);
                         if (notify_uid == *uid) continue;
-                        auto conn = _connections->connection(notify_uid);
-                        if (!conn) { continue;}
+                        auto conns = _connections->connections(notify_uid);
+                        if (conns.empty()) { continue;}
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_MESSAGE_NOTIFY);
                         auto msg_info = notify.mutable_new_message_info();
                         msg_info->mutable_message_info()->CopyFrom(rsp.message());
-                        conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &conn : conns) {
+                            conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                     }
                 }
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -1357,13 +1377,16 @@ namespace MY_IM{
                     for (int i = 0; i < target_rsp.target_id_list_size(); i++) {
                         std::string notify_uid = target_rsp.target_id_list(i);
                         if (notify_uid == *uid) continue; //不通知自己
-                        auto conn = _connections->connection(notify_uid);
-                        if (!conn) { continue;}
+                        auto conns = _connections->connections(notify_uid);
+                        if (conns.empty()) { continue;}
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_MESSAGE_NOTIFY);
                         auto msg_info = notify.mutable_new_message_info();
                         msg_info->mutable_message_info()->CopyFrom(target_rsp.message());
-                        conn->send(notify.SerializeAsString(), websocketpp::frame::opcode::value::binary);
+                        auto payload = notify.SerializeAsString();
+                        for (auto &conn : conns) {
+                            conn->send(payload, websocketpp::frame::opcode::value::binary);
+                        }
                     }
                 }
                 // 5. 向客户端进行响应

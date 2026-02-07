@@ -9,7 +9,7 @@ out/
 bin/
 obj/
 test/
-third/
+thirdpart/
 
 # 生成的工程文件
 *.cmake

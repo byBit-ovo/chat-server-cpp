@@ -146,6 +146,7 @@ namespace MY_IM
 				}
 				//4. 构造会话 ID，生成会话键值对，向 redis 中添加会话信息以及登录标记信息
 				std::string ssid = Uuid();
+				// 通过 user_id | device_type 来支持同一用户不同设备登录
 				_session_client->append(ssid, user->user_id(), device_type);
 				//5. 添加用户登录信息
 				_status_client->append(status_key);

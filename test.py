@@ -1,6 +1,6 @@
 from google import genai
 import bisect
-
+from collections import Counter
 # client = genai.Client()
 
 # response = client.models.generate_content(
@@ -27,11 +27,11 @@ import bisect
 # }
 
 # print(sorted(example, key=lambda x: x[1]))
+# s = "ldj"
+# s[1] = 'o'
+# print(s)
 
+d = {"1":"s",2:"e"}
+c = Counter(d)
 
-s = 'this is a sentence'
-s += 'a'
-s.pop()
-s.pop()
-s.pop()
-print(s)
+print(c)
