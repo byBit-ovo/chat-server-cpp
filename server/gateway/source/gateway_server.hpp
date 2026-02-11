@@ -985,7 +985,11 @@ namespace MY_IM{
                 if (rsp.success()){
                     for (int i = 0; i < rsp.target_id_list_size(); i++) {
                         std::string notify_uid = rsp.target_id_list(i);
-                        if (notify_uid == *uid) continue;
+                        // 目标通知 uid 是自己：不通知当前设备，若其它设备在线则发送 notify_sync 触发拉取增量
+                        if (notify_uid == *uid) {
+                            _NotifySyncToOtherDevices(*uid, ssid);
+                            continue;
+                        }
                         auto conns = _connections->connections(notify_uid);
                         if (conns.empty()) { continue;}
                         NotifyMessage notify;
@@ -1376,7 +1380,11 @@ namespace MY_IM{
                 if (target_rsp.success()){
                     for (int i = 0; i < target_rsp.target_id_list_size(); i++) {
                         std::string notify_uid = target_rsp.target_id_list(i);
-                        if (notify_uid == *uid) continue; //不通知自己
+                        // 目标通知 uid 是自己：不通知当前设备，若其它设备在线则发送 notify_sync 触发拉取增量
+                        if (notify_uid == *uid) {
+                            _NotifySyncToOtherDevices(*uid, ssid);
+                            continue;
+                        }
                         auto conns = _connections->connections(notify_uid);
                         if (conns.empty()) { continue;}
                         NotifyMessage notify;
@@ -1396,6 +1404,26 @@ namespace MY_IM{
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
         private:
+            // 若同一 uid 存在其它设备在线，则向其它设备发送 notify_sync（用于触发 get_message_sync）
+            void _NotifySyncToOtherDevices(const std::string& uid, const std::string& self_ssid) {
+                auto conns = _connections->connections(uid);
+                if (conns.empty()) return;
+
+                NotifyMessage notify;
+                notify.set_notify_type(NotifyType::NOTIFY_SYNC);
+                // oneof 需要明确选择（即使为空消息也可）
+                notify.mutable_notify_sync();
+                auto payload = notify.SerializeAsString();
+
+                for (auto& conn : conns) {
+                    std::string c_uid, c_ssid;
+                    if (!_connections->client(conn, c_uid, c_ssid)) continue;
+                    if (c_uid != uid) continue;
+                    if (c_ssid == self_ssid) continue; // 跳过当前设备
+                    conn->send(payload, websocketpp::frame::opcode::value::binary);
+                }
+            }
+
             SessionClient::ptr _redis_session;
             StatusClient::ptr _redis_status;
 

@@ -9,6 +9,7 @@ enum NotifyType {
  CHAT_SESSION_CREATE_NOTIFY = 2;
  CHAT_MESSAGE_NOTIFY = 3;
  FRIEND_REMOVE_NOTIFY = 4;
+ NOTIFY_SYNC = 5; // 多端同步通知：客户端收到后触发 get_message_sync
 } 
 message NotifyFriendAddApply {
  UserInfo user_info = 1; //申请人信息
@@ -26,6 +27,11 @@ message NotifyNewChatSession {
 message NotifyNewMessage {
  MessageInfo message_info = 1; //新消息
 }
+
+// 多设备同步通知：不携带业务数据，仅提示客户端拉取增量消息
+message NotifySync {
+}
+
 message NotifyMessage {
  optional string notify_event_id = 1;//通知事件操作 id（有则填无则忽略）
  NotifyType notify_type = 2;//通知事件类型
@@ -35,5 +41,6 @@ message NotifyMessage {
     NotifyFriendRemove friend_remove = 7;
     NotifyNewChatSession new_chat_session_info = 5;//会话信息
     NotifyNewMessage new_message_info = 6;//消息信息
+    NotifySync notify_sync = 8;//多端同步通知
  } 
 }
