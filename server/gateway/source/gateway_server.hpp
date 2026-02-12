@@ -13,7 +13,7 @@
 #include "transmite.pb.h"  // protobuf框架代码
 #include "channel.pb.h"  // protobuf框架代码
 #include "notify.pb.h"
-
+#include "utils.hpp"
 #include "httplib.h"
 
 
@@ -36,6 +36,7 @@ namespace MY_IM{
     #define FRIEND_GET_PENDING_EV   "/chat/friend/get_pending_friend_events"
     #define CSS_GET_LIST            "/chat/friend/get_chat_session_list"
     #define CSS_CREATE              "/chat/friend/create_chat_session"
+    #define CSS_ADD_MEMBER          "/chat/friend/add_chat_session_member"
     #define CSS_GET_MEMBER          "/chat/friend/get_chat_session_member"
     #define MSG_GET_RANGE           "/chat/message_storage/get_history"
     #define MSG_GET_RECENT          "/chat/message_storage/get_recent"
@@ -107,6 +108,7 @@ namespace MY_IM{
                 _http_server.Post(FRIEND_GET_PENDING_EV  , (httplib::Server::Handler)std::bind(&GatewayServer::GetPendingFriendEventList  , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(CSS_GET_LIST           , (httplib::Server::Handler)std::bind(&GatewayServer::GetChatSessionList         , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(CSS_CREATE             , (httplib::Server::Handler)std::bind(&GatewayServer::ChatSessionCreate          , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(CSS_ADD_MEMBER         , (httplib::Server::Handler)std::bind(&GatewayServer::AddChatSessionMember       , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(CSS_GET_MEMBER         , (httplib::Server::Handler)std::bind(&GatewayServer::GetChatSessionMember       , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_RANGE          , (httplib::Server::Handler)std::bind(&GatewayServer::GetHistoryMsg              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_RECENT         , (httplib::Server::Handler)std::bind(&GatewayServer::GetRecentMsg               , this, std::placeholders::_1, std::placeholders::_2));
@@ -165,10 +167,44 @@ namespace MY_IM{
                 _ws_server.set_timer(60000, std::bind(&GatewayServer::keepAlive, this, conn));
             }
             void onMessage(websocketpp::connection_hdl hdl, server_t::message_ptr msg) {
-                //收到第一条消息后，根据消息中的会话ID进行身份识别，将客户端长连接添加管理
-                //1. 取出长连接对应的连接对象
                 auto conn = _ws_server.get_con_from_hdl(hdl);
-                //2. 针对消息内容进行反序列化 -- ClientAuthenticationReq -- 提取登录会话ID
+                std::string uid, ssid;
+                // 已认证连接：当前仅支持 ACK 上行
+                if (_connections->client(conn, uid, ssid)) {
+                    NotifyAckReq ack_req;
+                    bool ack_ok = ack_req.ParseFromString(msg->get_payload());
+                    if (!ack_ok) {
+                        LOG_WARNING("收到未识别的 websocket 上行消息，已忽略");
+                        return;
+                    }
+                    if (ack_req.notify_event_id_list_size() == 0) {
+                        return;
+                    }
+                    std::string rid = ack_req.request_id().empty() ? Uuid() : ack_req.request_id();
+                    AckOfflineNotifyReq req;
+                    AckOfflineNotifyRsp rsp;
+                    req.set_request_id(rid);
+                    req.set_user_id(uid);
+                    for (int i = 0; i < ack_req.notify_event_id_list_size(); i++) {
+                        req.add_notify_event_id_list(ack_req.notify_event_id_list(i));
+                    }
+                    auto channel = _mm_channels->GetChannel(_message_service_name);
+                    if (!channel) {
+                        LOG_ERROR("{} 未找到消息子服务节点，ACK处理失败", rid);
+                        return;
+                    }
+                    MY_IM::MsgStorageService_Stub stub(channel.get());
+                    brpc::Controller cntl;
+                    stub.AckOfflineNotify(&cntl, &req, &rsp, nullptr);
+                    if (cntl.Failed() || !rsp.success()) {
+                        LOG_ERROR("{} ACK离线通知失败: {}", rid, cntl.Failed() ? cntl.ErrorText() : rsp.errmsg());
+                        return;
+                    }
+                    LOG_DEBUG("{} ACK离线通知成功，数量: {}", rid, ack_req.notify_event_id_list_size());
+                    return;
+                }
+
+                // 未认证连接：首条消息按鉴权消息处理
                 ClientAuthenticationReq request;
                 bool ret = request.ParseFromString(msg->get_payload());
                 if (ret == false) {
@@ -177,17 +213,18 @@ namespace MY_IM{
                     return;
                 }
                 //3. 在会话信息缓存中，查找会话信息 
-                std::string ssid = request.session_id();
-                auto uid = _redis_session->uid(ssid);
+                ssid = request.session_id();
+                auto optionalUid = _redis_session->uid(ssid);
                 //4. 会话信息不存在则关闭连接
-                if (!uid) {
+                if (!optionalUid) {
                     LOG_ERROR("长连接身份识别失败：未找到会话信息 {}！", ssid);
                     _ws_server.close(hdl, websocketpp::close::status::unsupported_data, "未找到会话信息!");
                     return;
                 }
                 //5. 会话信息存在，则添加长连接管理
-                _connections->insert(conn, *uid, ssid);
-                LOG_DEBUG("新增长连接管理：{}-{}-{}", ssid, *uid, (size_t)conn.get());
+                _connections->insert(conn, *optionalUid, ssid);
+                LOG_DEBUG("新增长连接管理：{}-{}-{}", ssid, *optionalUid, (size_t)conn.get());
+                _ReplayOfflineNotify(Uuid(), *optionalUid, conn);
                 keepAlive(conn);
             }
             void UserRegister(const httplib::Request &request, httplib::Response &response) {
@@ -537,9 +574,7 @@ namespace MY_IM{
                     return err_response("好友子服务调用失败！");
                 }
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
-                auto conns = _connections->connections(req.respondent_id());
-                if (rsp.success() && !conns.empty()) {
-                    LOG_DEBUG("找到被申请人 {} 长连接，对其进行好友申请通知", req.respondent_id());
+                if (rsp.success()) {
                     auto user_rsp = _GetUserInfo(req.request_id(), *uid);
                     if (!user_rsp) {
                         LOG_ERROR("{} 获取当前客户端用户信息失败！", req.request_id());
@@ -548,10 +583,7 @@ namespace MY_IM{
                     NotifyMessage notify;
                     notify.set_notify_type(NotifyType::FRIEND_ADD_APPLY_NOTIFY);
                     notify.mutable_friend_add_apply()->mutable_user_info()->CopyFrom(user_rsp->user_info());
-                    auto payload = notify.SerializeAsString();
-                    for (auto &conn : conns) {
-                        conn->send(payload, websocketpp::frame::opcode::value::binary);
-                    }
+                    _PushNotifyOrStore(req.request_id(), req.respondent_id(), notify);
                 }
                 // 5. 向客户端进行响应
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -603,33 +635,16 @@ namespace MY_IM{
                         LOG_ERROR("{} 获取用户信息失败！", req.request_id());
                         return err_response("获取用户信息失败！");
                     }
-                    auto process_conns = _connections->connections(*uid);
-                    if (!process_conns.empty()) {
-                        LOG_DEBUG("找到处理人的长连接！");
-                    } else {
-                        LOG_DEBUG("未找到处理人的长连接！");
-                    }
-                    auto apply_conns = _connections->connections(req.apply_user_id());
-                    if (!apply_conns.empty()) {
-                        LOG_DEBUG("找到申请人的长连接！");
-                    } else {
-                        LOG_DEBUG("未找到申请人的长连接！");
-                    }
                     //4. 将处理结果给申请人进行通知
-                    if (!apply_conns.empty()) {
-                        NotifyMessage notify;
-                        notify.set_notify_type(NotifyType::FRIEND_ADD_PROCESS_NOTIFY);
-                        auto process_result = notify.mutable_friend_process_result();
-                        process_result->mutable_user_info()->CopyFrom(process_user_rsp->user_info());
-                        process_result->set_agree(req.agree());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &apply_conn : apply_conns) {
-                            apply_conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
-                        LOG_DEBUG("对申请人进行申请处理结果通知！");
-                    }
+                    NotifyMessage notify;
+                    notify.set_notify_type(NotifyType::FRIEND_ADD_PROCESS_NOTIFY);
+                    auto process_result = notify.mutable_friend_process_result();
+                    process_result->mutable_user_info()->CopyFrom(process_user_rsp->user_info());
+                    process_result->set_agree(req.agree());
+                    _PushNotifyOrStore(req.request_id(), req.apply_user_id(), notify);
+                    LOG_DEBUG("对申请人进行申请处理结果通知！");
                     //5. 若处理结果是同意 --- 会伴随着单聊会话的创建 -- 因此需要对双方进行会话创建的通知
-                    if (req.agree() && !apply_conns.empty()) { //对申请人的通知---会话信息就是处理人信息
+                    if (req.agree()) { //对申请人的通知---会话信息就是处理人信息
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
@@ -637,13 +652,10 @@ namespace MY_IM{
                         chat_session->mutable_chat_session_info()->set_chat_session_id(rsp.new_session_id());
                         chat_session->mutable_chat_session_info()->set_chat_session_name(process_user_rsp->user_info().nickname());
                         chat_session->mutable_chat_session_info()->set_avatar(process_user_rsp->user_info().avatar());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &apply_conn : apply_conns) {
-                            apply_conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
+                        _PushNotifyOrStore(req.request_id(), req.apply_user_id(), notify);
                         LOG_DEBUG("对申请人进行会话创建通知！");
                     }
-                    if (req.agree() && !process_conns.empty()) { //对处理人的通知 --- 会话信息就是申请人信息
+                    if (req.agree()) { //对处理人的通知 --- 会话信息就是申请人信息
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
@@ -651,10 +663,7 @@ namespace MY_IM{
                         chat_session->mutable_chat_session_info()->set_chat_session_id(rsp.new_session_id());
                         chat_session->mutable_chat_session_info()->set_chat_session_name(apply_user_rsp->user_info().nickname());
                         chat_session->mutable_chat_session_info()->set_avatar(apply_user_rsp->user_info().avatar());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &process_conn : process_conns) {
-                            process_conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
+                        _PushNotifyOrStore(req.request_id(), *uid, notify);
                         LOG_DEBUG("对处理人进行会话创建通知！");
                     }
                 }
@@ -697,16 +706,12 @@ namespace MY_IM{
                     return err_response("好友子服务调用失败！");
                 }
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
-                auto conns = _connections->connections(req.peer_id());
-                if (rsp.success() && !conns.empty()) {
+                if (rsp.success()) {
                     LOG_ERROR("对被删除人 {} 进行好友删除通知！", req.peer_id());
                     NotifyMessage notify;
                     notify.set_notify_type(NotifyType::FRIEND_REMOVE_NOTIFY);
                     notify.mutable_friend_remove()->set_user_id(*uid);
-                    auto payload = notify.SerializeAsString();
-                    for (auto &conn : conns) {
-                        conn->send(payload, websocketpp::frame::opcode::value::binary);
-                    }
+                    _PushNotifyOrStore(req.request_id(), req.peer_id(), notify);
                 }
                 // 5. 向客户端进行响应
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -896,23 +901,65 @@ namespace MY_IM{
                 // 4. 若业务处理成功 --- 且获取被申请方长连接成功，则向被申请放进行好友申请事件通知
                 if (rsp.success()){
                     for (int i = 0; i < req.member_id_list_size(); i++) {
-                        auto conns = _connections->connections(req.member_id_list(i));
-                        if (conns.empty()) {
-                            LOG_DEBUG("未找到群聊成员 {} 长连接", req.member_id_list(i));
-                            continue;
-                        }
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
                         auto chat_session = notify.mutable_new_chat_session_info();
                         chat_session->mutable_chat_session_info()->CopyFrom(rsp.chat_session_info());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &conn : conns) {
-                            conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
+                        _PushNotifyOrStore(req.request_id(), req.member_id_list(i), notify);
                         LOG_DEBUG("对群聊成员 {} 进行会话创建通知", req.member_id_list(i));
                     }
                 }
                 // 5. 向客户端进行响应
+                rsp.clear_chat_session_info();
+                response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+            }
+            void AddChatSessionMember(const httplib::Request &request, httplib::Response &response) {
+                AddChatSessionMemberReq req;
+                AddChatSessionMemberRsp rsp;
+                auto err_response = [&req, &rsp, &response](const std::string &errmsg) -> void {
+                    rsp.set_success(false);
+                    rsp.set_errmsg(errmsg);
+                    response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
+                };
+                bool ret = req.ParseFromString(request.body);
+                if (ret == false) {
+                    LOG_ERROR("群聊添加成员请求正文反序列化失败！");
+                    return err_response("群聊添加成员请求正文反序列化失败！");
+                }
+                // 客户端身份识别与鉴权
+                std::string ssid = req.session_id();
+                auto uid = _redis_session->uid(ssid);
+                if (!uid) {
+                    LOG_ERROR("{} 获取登录会话关联用户信息失败！", ssid);
+                    return err_response("获取登录会话关联用户信息失败！");
+                }
+                req.set_user_id(*uid);
+                // 转发给好友子服务
+                auto channel = _mm_channels->GetChannel(_friend_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到可提供业务处理的用户子服务节点！", req.request_id());
+                    return err_response("未找到可提供业务处理的用户子服务节点！");
+                }
+                MY_IM::FriendService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.AddChatSessionMember(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed()) {
+                    LOG_ERROR("{} 好友子服务调用失败！", req.request_id());
+                    return err_response("好友子服务调用失败！");
+                }
+
+                // 对“实际新增成功”的被邀请人进行会话通知
+                if (rsp.success()) {
+                    for (int i = 0; i < rsp.added_member_id_list_size(); i++) {
+                        const auto &invited_uid = rsp.added_member_id_list(i);
+                        NotifyMessage notify;
+                        notify.set_notify_type(NotifyType::CHAT_SESSION_CREATE_NOTIFY);
+                        auto chat_session = notify.mutable_new_chat_session_info();
+                        chat_session->mutable_chat_session_info()->CopyFrom(rsp.chat_session_info());
+                        _PushNotifyOrStore(req.request_id(), invited_uid, notify);
+                        LOG_DEBUG("对新增群聊成员 {} 进行会话创建通知", invited_uid);
+                    }
+                }
                 rsp.clear_chat_session_info();
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
@@ -990,16 +1037,11 @@ namespace MY_IM{
                             _NotifySyncToOtherDevices(*uid, ssid);
                             continue;
                         }
-                        auto conns = _connections->connections(notify_uid);
-                        if (conns.empty()) { continue;}
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_MESSAGE_NOTIFY);
                         auto msg_info = notify.mutable_new_message_info();
                         msg_info->mutable_message_info()->CopyFrom(rsp.message());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &conn : conns) {
-                            conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
+                        _PushNotifyOrStore(req.request_id(), notify_uid, notify);
                     }
                 }
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
@@ -1385,16 +1427,11 @@ namespace MY_IM{
                             _NotifySyncToOtherDevices(*uid, ssid);
                             continue;
                         }
-                        auto conns = _connections->connections(notify_uid);
-                        if (conns.empty()) { continue;}
                         NotifyMessage notify;
                         notify.set_notify_type(NotifyType::CHAT_MESSAGE_NOTIFY);
                         auto msg_info = notify.mutable_new_message_info();
                         msg_info->mutable_message_info()->CopyFrom(target_rsp.message());
-                        auto payload = notify.SerializeAsString();
-                        for (auto &conn : conns) {
-                            conn->send(payload, websocketpp::frame::opcode::value::binary);
-                        }
+                        _PushNotifyOrStore(req.request_id(), notify_uid, notify);
                     }
                 }
                 // 5. 向客户端进行响应
@@ -1404,6 +1441,68 @@ namespace MY_IM{
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
         private:
+            bool _PushNotifyOrStore(const std::string& rid, const std::string& target_uid, NotifyMessage notify) {
+                if (target_uid.empty()) return false;
+                if (notify.notify_event_id().empty()) {
+                    notify.set_notify_event_id(Uuid());
+                }
+                const auto payload = notify.SerializeAsString();
+                auto conns = _connections->connections(target_uid);
+                if (!conns.empty()) {
+                    for (auto &conn : conns) {
+                        conn->send(payload, websocketpp::frame::opcode::value::binary);
+                    }
+                    return true;
+                }
+
+                auto channel = _mm_channels->GetChannel(_message_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到消息子服务节点，离线通知存储失败", rid);
+                    return false;
+                }
+                CreateOfflineNotifyReq req;
+                CreateOfflineNotifyRsp rsp;
+                req.set_request_id(rid);
+                req.set_user_id(target_uid);
+                req.set_notify_type(static_cast<int32_t>(notify.notify_type()));
+                req.set_notify_event_id(notify.notify_event_id());
+                req.set_payload(payload);
+                MY_IM::MsgStorageService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.CreateOfflineNotify(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed() || !rsp.success()) {
+                    LOG_ERROR("{} 离线通知入库失败: {}", rid, cntl.Failed() ? cntl.ErrorText() : rsp.errmsg());
+                    return false;
+                }
+                return true;
+            }
+
+            void _ReplayOfflineNotify(const std::string& rid, const std::string& uid, const server_t::connection_ptr& conn) {
+                auto channel = _mm_channels->GetChannel(_message_service_name);
+                if (!channel) {
+                    LOG_ERROR("{} 未找到消息子服务节点，离线通知回放失败", rid);
+                    return;
+                }
+                GetOfflineNotifyReq req;
+                GetOfflineNotifyRsp rsp;
+                req.set_request_id(rid);
+                req.set_user_id(uid);
+                req.set_limit(100);
+                MY_IM::MsgStorageService_Stub stub(channel.get());
+                brpc::Controller cntl;
+                stub.GetOfflineNotify(&cntl, &req, &rsp, nullptr);
+                if (cntl.Failed() || !rsp.success()) {
+                    LOG_ERROR("{} 拉取离线通知失败: {}", rid, cntl.Failed() ? cntl.ErrorText() : rsp.errmsg());
+                    return;
+                }
+                for (int i = 0; i < rsp.notify_list_size(); i++) {
+                    conn->send(rsp.notify_list(i).payload(), websocketpp::frame::opcode::value::binary);
+                }
+                if (rsp.notify_list_size() > 0) {
+                    LOG_DEBUG("{} 回放离线通知数量: {}", rid, rsp.notify_list_size());
+                }
+            }
+
             // 若同一 uid 存在其它设备在线，则向其它设备发送 notify_sync（用于触发 get_message_sync）
             void _NotifySyncToOtherDevices(const std::string& uid, const std::string& self_ssid) {
                 auto conns = _connections->connections(uid);

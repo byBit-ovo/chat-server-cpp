@@ -44,3 +44,9 @@ message NotifyMessage {
     NotifySync notify_sync = 8;//多端同步通知
  } 
 }
+
+// websocket 客户端回执（ACK）消息
+message NotifyAckReq {
+ string request_id = 1;
+ repeated string notify_event_id_list = 2;
+}

@@ -440,6 +440,74 @@ class FriendServiceImpl : public MY_IM::FriendService {
             response->mutable_chat_session_info()->set_chat_session_id(cssid);
             response->mutable_chat_session_info()->set_chat_session_name(cssname);
         }
+        virtual void AddChatSessionMember(::google::protobuf::RpcController* controller,
+            const ::MY_IM::AddChatSessionMemberReq* request,
+            ::MY_IM::AddChatSessionMemberRsp* response,
+            ::google::protobuf::Closure* done) {
+            brpc::ClosureGuard rpc_guard(done);
+            auto err_response = [this, response](const std::string &rid,
+                const std::string &errmsg) -> void {
+                response->set_request_id(rid);
+                response->set_success(false);
+                response->set_errmsg(errmsg);
+                return;
+            };
+
+            std::string rid = request->request_id();
+            std::string uid = request->user_id();
+            std::string cssid = request->chat_session_id();
+            if (uid.empty()) {
+                return err_response(rid, "用户ID不能为空");
+            }
+            if (cssid.empty()) {
+                return err_response(rid, "会话ID不能为空");
+            }
+
+            auto session = _mysql_chat_session->select(cssid);
+            if (!session) {
+                LOG_ERROR("{} - 群聊会话 {} 不存在！", rid, cssid);
+                return err_response(rid, "群聊会话不存在!");
+            }
+            if (session->chat_session_type() != ChatSessionType::GROUP) {
+                LOG_ERROR("{} - 会话 {} 不是群聊类型！", rid, cssid);
+                return err_response(rid, "会话不是群聊类型!");
+            }
+
+            auto member_id_lists = _mysql_chat_session_member->members(cssid);
+            std::unordered_set<std::string> member_set(member_id_lists.begin(), member_id_lists.end());
+            if (member_set.find(uid) == member_set.end()) {
+                LOG_ERROR("{} - 用户 {} 非群聊 {} 成员，无法添加成员！", rid, uid, cssid);
+                return err_response(rid, "非群聊成员无法添加成员!");
+            }
+
+            std::unordered_set<std::string> pending_set;
+            std::vector<ChatSessionMember> member_list;
+            std::vector<std::string> added_member_ids;
+            for (int i = 0; i < request->member_id_list_size(); i++) {
+                std::string mid = request->member_id_list(i);
+                if (mid.empty()) continue;
+                if (member_set.find(mid) != member_set.end()) continue;
+                if (!pending_set.insert(mid).second) continue;
+                member_list.emplace_back(cssid, mid);
+                added_member_ids.push_back(mid);
+            }
+
+            if (!member_list.empty()) {
+                bool ret = _mysql_chat_session_member->append(member_list);
+                if (ret == false) {
+                    LOG_ERROR("{} - 向数据库添加群聊成员失败: {}", rid, cssid);
+                    return err_response(rid, "向数据库添加群聊成员失败!");
+                }
+            }
+
+            response->set_request_id(rid);
+            response->set_success(true);
+            response->mutable_chat_session_info()->set_chat_session_id(cssid);
+            response->mutable_chat_session_info()->set_chat_session_name(session->chat_session_name());
+            for (const auto& mid : added_member_ids) {
+                response->add_added_member_id_list(mid);
+            }
+        }
         virtual void GetChatSessionMember(::google::protobuf::RpcController* controller,
             const ::MY_IM::GetChatSessionMemberReq* request,
             ::MY_IM::GetChatSessionMemberRsp* response,

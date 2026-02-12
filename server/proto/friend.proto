@@ -132,6 +132,24 @@ message ChatSessionCreateRsp {
  optional ChatSessionInfo chat_session_info = 4; 
 } 
 //--------------------------------------
+//给群聊添加成员
+message AddChatSessionMemberReq {
+ string request_id = 1;
+ optional string session_id = 2;
+ optional string user_id = 3; //操作者
+ string chat_session_id = 4; //群聊会话ID
+ repeated string member_id_list = 5; //待新增成员ID列表
+}
+message AddChatSessionMemberRsp {
+ string request_id = 1;
+ bool success = 2;
+ string errmsg = 3;
+ //用于网关通知新增成员加入会话，客户端HTTP响应无需关注
+ optional ChatSessionInfo chat_session_info = 4;
+ // 实际新增成功的成员ID列表（用于网关通知被邀请人）
+ repeated string added_member_id_list = 5;
+}
+//--------------------------------------
 //获取会话成员列表
 message GetChatSessionMemberReq {
  string request_id = 1;
@@ -153,6 +171,7 @@ service FriendService {
  rpc FriendSearch(FriendSearchReq) returns (FriendSearchRsp);
  rpc GetChatSessionList(GetChatSessionListReq) returns (GetChatSessionListRsp);
  rpc ChatSessionCreate(ChatSessionCreateReq) returns (ChatSessionCreateRsp);
+ rpc AddChatSessionMember(AddChatSessionMemberReq) returns (AddChatSessionMemberRsp);
  rpc GetChatSessionMember(GetChatSessionMemberReq) returns (GetChatSessionMemberRsp);
  rpc GetPendingFriendEventList(GetPendingFriendEventListReq) returns (GetPendingFriendEventListRsp);
 }

@@ -66,10 +66,54 @@ message GetSyncMsgRsp {
  string errmsg = 3;
  repeated MessageInfo msg_list = 4;
 }
+
+// 离线通知存储与投递
+message CreateOfflineNotifyReq {
+ string request_id = 1;
+ string user_id = 2;
+ int32 notify_type = 3;
+ string notify_event_id = 4;
+ bytes payload = 5;
+}
+message CreateOfflineNotifyRsp {
+ string request_id = 1;
+ bool success = 2;
+ string errmsg = 3;
+ string notify_event_id = 4;
+}
+message OfflineNotifyData {
+ string notify_event_id = 1;
+ int32 notify_type = 2;
+ bytes payload = 3;
+}
+message GetOfflineNotifyReq {
+ string request_id = 1;
+ string user_id = 2;
+ int32 limit = 3;
+}
+message GetOfflineNotifyRsp {
+ string request_id = 1;
+ bool success = 2;
+ string errmsg = 3;
+ repeated OfflineNotifyData notify_list = 4;
+}
+message AckOfflineNotifyReq {
+ string request_id = 1;
+ string user_id = 2;
+ repeated string notify_event_id_list = 3;
+}
+message AckOfflineNotifyRsp {
+ string request_id = 1;
+ bool success = 2;
+ string errmsg = 3;
+}
 service MsgStorageService {
  	rpc GetHistoryMsg(GetHistoryMsgReq) returns  (GetHistoryMsgRsp);
 	rpc GetRecentMsg(GetRecentMsgReq) returns (GetRecentMsgRsp);
  	rpc MsgSearch(MsgSearchReq) returns (MsgSearchRsp);
 	rpc GetSyncMsg(GetSyncMsgReq) returns (GetSyncMsgRsp);
+	rpc CreateOfflineNotify(CreateOfflineNotifyReq) returns (CreateOfflineNotifyRsp);
+	rpc GetOfflineNotify(GetOfflineNotifyReq) returns (GetOfflineNotifyRsp);
+	rpc AckOfflineNotify(AckOfflineNotifyReq) returns (AckOfflineNotifyRsp);
  
 }

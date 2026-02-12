@@ -5,6 +5,7 @@
 
 #include "search.hpp"		 // es数据管理客户端封装
 #include "mysql_message.hpp" // mysql数据管理客户端封装
+#include "mysql_notify.hpp"
 #include "mysql_chat_session_member.hpp"
 #include "etcd.hpp"			 // 服务注册模块封装
 #include "logger.hpp"		 // 日志模块封装
@@ -29,6 +30,7 @@ namespace MY_IM
 			const std::string &file_service_name,
 			const std::string &user_service_name) : _es_message(std::make_shared<ESMessage>(es_client)),
 													_mysql_message(std::make_shared<MessageTable>(mysql_client)),
+													_mysql_notify(std::make_shared<NotifyTable>(mysql_client)),
 													_mysql_session_member(std::make_shared<ChatSessionMemeberTable>(mysql_client)),
 													_file_service_name(file_service_name),
 													_user_service_name(user_service_name),
@@ -384,6 +386,97 @@ namespace MY_IM
 			}
 			return;
 		}
+		virtual void CreateOfflineNotify(::google::protobuf::RpcController *controller,
+										 const ::MY_IM::CreateOfflineNotifyReq *request,
+										 ::MY_IM::CreateOfflineNotifyRsp *response,
+										 ::google::protobuf::Closure *done)
+		{
+			brpc::ClosureGuard rpc_guard(done);
+			auto err_response = [response](const std::string &rid,
+										   const std::string &errmsg) -> void
+			{
+				response->set_request_id(rid);
+				response->set_success(false);
+				response->set_errmsg(errmsg);
+			};
+			std::string rid = request->request_id();
+			std::string uid = request->user_id();
+			std::string eid = request->notify_event_id();
+			if (uid.empty())
+				return err_response(rid, "user_id 不能为空");
+			if (eid.empty())
+				eid = Uuid();
+			Notify nt(eid, uid, static_cast<unsigned char>(request->notify_type()), request->payload(), NOTIFY_PENDING);
+			bool ret = _mysql_notify->insert(nt);
+			if (!ret)
+				return err_response(rid, "离线通知入库失败");
+			response->set_request_id(rid);
+			response->set_success(true);
+			response->set_notify_event_id(eid);
+		}
+		virtual void GetOfflineNotify(::google::protobuf::RpcController *controller,
+									  const ::MY_IM::GetOfflineNotifyReq *request,
+									  ::MY_IM::GetOfflineNotifyRsp *response,
+									  ::google::protobuf::Closure *done)
+		{
+			brpc::ClosureGuard rpc_guard(done);
+			auto err_response = [response](const std::string &rid,
+										   const std::string &errmsg) -> void
+			{
+				response->set_request_id(rid);
+				response->set_success(false);
+				response->set_errmsg(errmsg);
+			};
+			std::string rid = request->request_id();
+			std::string uid = request->user_id();
+			if (uid.empty())
+				return err_response(rid, "user_id 不能为空");
+			int limit = request->limit();
+			auto list = _mysql_notify->pending(uid, limit);
+			std::vector<std::string> event_ids;
+			for (auto &item : list)
+			{
+				auto n = response->add_notify_list();
+				n->set_notify_event_id(item.event_id());
+				n->set_notify_type(item.notify_type());
+				n->set_payload(item.payload());
+				event_ids.push_back(item.event_id());
+			}
+			if (!event_ids.empty())
+			{
+				_mysql_notify->markPushed(event_ids);
+			}
+			response->set_request_id(rid);
+			response->set_success(true);
+		}
+		virtual void AckOfflineNotify(::google::protobuf::RpcController *controller,
+									  const ::MY_IM::AckOfflineNotifyReq *request,
+									  ::MY_IM::AckOfflineNotifyRsp *response,
+									  ::google::protobuf::Closure *done)
+		{
+			brpc::ClosureGuard rpc_guard(done);
+			auto err_response = [response](const std::string &rid,
+										   const std::string &errmsg) -> void
+			{
+				response->set_request_id(rid);
+				response->set_success(false);
+				response->set_errmsg(errmsg);
+			};
+			std::string rid = request->request_id();
+			std::string uid = request->user_id();
+			if (uid.empty())
+				return err_response(rid, "user_id 不能为空");
+			std::vector<std::string> ids;
+			for (int i = 0; i < request->notify_event_id_list_size(); i++)
+			{
+				ids.push_back(request->notify_event_id_list(i));
+			}
+			bool ret = _mysql_notify->remove(uid, ids);
+			if (!ret)
+				return err_response(rid, "ACK删除离线通知失败");
+			response->set_request_id(rid);
+			response->set_success(true);
+		}
 		// messages in MqServer are from transmite_server
 		// receive messages from MqServer and store them in ES, MySQL, file_service
 		void onMessage(const char *body, size_t sz)
@@ -610,6 +703,7 @@ namespace MY_IM
 	private:
 		ESMessage::ptr _es_message;
 		MessageTable::ptr _mysql_message;
+		NotifyTable::ptr _mysql_notify;
 		ChatSessionMemeberTable::ptr _mysql_session_member;
 		// 这边是rpc调用客户端相关对象
 		std::string _user_service_name;
