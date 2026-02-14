@@ -10,6 +10,7 @@ bin/
 obj/
 test/
 thirdpart/
+gen/
 
 # 生成的工程文件
 *.cmake

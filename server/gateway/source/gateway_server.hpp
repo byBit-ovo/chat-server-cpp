@@ -112,7 +112,9 @@ namespace MY_IM{
                 _http_server.Post(CSS_GET_MEMBER         , (httplib::Server::Handler)std::bind(&GatewayServer::GetChatSessionMember       , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_RANGE          , (httplib::Server::Handler)std::bind(&GatewayServer::GetHistoryMsg              , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_RECENT         , (httplib::Server::Handler)std::bind(&GatewayServer::GetRecentMsg               , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(MSG_GET_RECENT         , (httplib::Server::Handler)std::bind(&GatewayServer::GetRecentMsg               , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_KEY_SEARCH         , (httplib::Server::Handler)std::bind(&GatewayServer::MsgSearch                  , this, std::placeholders::_1, std::placeholders::_2));
+                _http_server.Post(MSG_GET_SYNC           , (httplib::Server::Handler)std::bind(&GatewayServer::GetSyncMsg                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(MSG_GET_SYNC           , (httplib::Server::Handler)std::bind(&GatewayServer::GetSyncMsg                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(NEW_MESSAGE            , (httplib::Server::Handler)std::bind(&GatewayServer::NewMessage                 , this, std::placeholders::_1, std::placeholders::_2));
                 _http_server.Post(FILE_GET_SINGLE        , (httplib::Server::Handler)std::bind(&GatewayServer::GetSingleFile              , this, std::placeholders::_1, std::placeholders::_2));
