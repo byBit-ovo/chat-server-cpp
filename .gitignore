@@ -27,7 +27,7 @@ gen/
 *.pb.cc
 *.pb.cpp
 *odb.*
-client
+client_*
 speech_server	
 speech_client
 user_client
