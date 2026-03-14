@@ -1450,13 +1450,14 @@ namespace MY_IM{
                 }
                 const auto payload = notify.SerializeAsString();
                 auto conns = _connections->connections(target_uid);
+                // 如果目标用户有在线设备，则直接发送通知
                 if (!conns.empty()) {
                     for (auto &conn : conns) {
                         conn->send(payload, websocketpp::frame::opcode::value::binary);
                     }
                     return true;
                 }
-
+                // 如果目标用户没有在线设备，则将通知存储到数据库
                 auto channel = _mm_channels->GetChannel(_message_service_name);
                 if (!channel) {
                     LOG_ERROR("{} 未找到消息子服务节点，离线通知存储失败", rid);
