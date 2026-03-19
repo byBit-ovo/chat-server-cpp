@@ -171,12 +171,12 @@ namespace MY_IM{
             void onMessage(websocketpp::connection_hdl hdl, server_t::message_ptr msg) {
                 auto conn = _ws_server.get_con_from_hdl(hdl);
                 std::string uid, ssid;
-                // 已认证连接：当前仅支持 ACK 上行
+                // 离线用户上线后 网关会给其推送离线消息，客户端收到后需要进行ACK确认，确认后网关会删除对应的离线消息
                 if (_connections->client(conn, uid, ssid)) {
                     NotifyAckReq ack_req;
                     bool ack_ok = ack_req.ParseFromString(msg->get_payload());
                     if (!ack_ok) {
-                        LOG_WARNING("收到未识别的 websocket 上行消息，已忽略");
+                        LOG_WARNING("收到未识别的 websocket 消息，已忽略");
                         return;
                     }
                     if (ack_req.notify_event_id_list_size() == 0) {
@@ -227,6 +227,7 @@ namespace MY_IM{
                 _connections->insert(conn, *optionalUid, ssid);
                 LOG_DEBUG("新增长连接管理：{}-{}-{}", ssid, *optionalUid, (size_t)conn.get());
                 _ReplayOfflineNotify(Uuid(), *optionalUid, conn);
+                _NotifySyncToCurrentConnection(*optionalUid, ssid, conn);
                 keepAlive(conn);
             }
             void UserRegister(const httplib::Request &request, httplib::Response &response) {
@@ -1443,7 +1444,7 @@ namespace MY_IM{
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
         private:
-            bool _PushNotifyOrStore(const std::string& rid, const std::string& target_uid, NotifyMessage notify) {
+            bool _PushNotifyOrStore(const std::string& rid, const std::string& target_uid, NotifyMessage& notify) {
                 if (target_uid.empty()) return false;
                 if (notify.notify_event_id().empty()) {
                     notify.set_notify_event_id(Uuid());
@@ -1506,7 +1507,21 @@ namespace MY_IM{
                 }
             }
 
-            // 若同一 uid 存在其它设备在线，则向其它设备发送 notify_sync（用于触发 get_message_sync）
+            // 当前设备完成鉴权后，主动提示客户端拉取一次增量消息。
+            void _NotifySyncToCurrentConnection(const std::string& uid, const std::string& ssid, const server_t::connection_ptr& conn) {
+                if (!conn) return;
+
+                NotifyMessage notify;
+                notify.set_notify_type(NotifyType::NOTIFY_SYNC);
+                notify.mutable_notify_sync();
+                auto payload = notify.SerializeAsString();
+                conn->send(payload, websocketpp::frame::opcode::value::binary);
+                LOG_DEBUG("{} {} 当前设备已发送 notify_sync", uid, ssid);
+            }
+
+            // 若同一uid 存在其它设备在线，则向其它设备发送 notify_sync（用于触发 get_message_sync）
+            // 若用户有离线设备登录,网关可以调用此方法向其它设备发送 notify_sync，以便触发客户端的get_message_sync
+            // 也可以让客户端在登录后主动调用 get_message_sync 拉取增量消息
             void _NotifySyncToOtherDevices(const std::string& uid, const std::string& self_ssid) {
                 auto conns = _connections->connections(uid);
                 if (conns.empty()) return;
