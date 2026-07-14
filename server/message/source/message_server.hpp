@@ -1,6 +1,7 @@
 // 实现语音识别子服务
 #include <brpc/server.h>
 #include <butil/logging.h>
+
 #include <mysql/mysql.h>
 
 #include "search.hpp"		 // es数据管理客户端封装
@@ -28,8 +29,9 @@ namespace MY_IM
 			const std::shared_ptr<odb::core::database> &mysql_client,
 			const ServiceManager::ptr &channel_manager,
 			const std::string &file_service_name,
-			const std::string &user_service_name) : _es_message(std::make_shared<ESMessage>(es_client)),
-													_mysql_message(std::make_shared<MessageTable>(mysql_client)),
+			const std::string &user_service_name) : 
+			_es_message(std::make_shared<ESMessage>(es_client)),				
+			_mysql_message(std::make_shared<MessageTable>(mysql_client)),
 													_mysql_notify(std::make_shared<NotifyTable>(mysql_client)),
 													_mysql_session_member(std::make_shared<ChatSessionMemeberTable>(mysql_client)),
 													_file_service_name(file_service_name),

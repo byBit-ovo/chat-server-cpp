@@ -257,6 +257,7 @@ namespace MY_IM{
                     LOG_ERROR("{} 用户子服务调用失败！", req.request_id());
                     return err_response("用户子服务调用失败！");
                 }
+                
                 //3. 得到用户子服务的响应后，将响应内容进行序列化作为http响应正文
                 response.set_content(rsp.SerializeAsString(), "application/x-protbuf");
             }
